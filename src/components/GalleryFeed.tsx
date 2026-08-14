@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_URL = "https://sothink.com.br/apinippon/api/v2/nipponimages"; // MUDE AQUI
+const API_URL = "https://sothink.com.br/centenario26/api/v2/nipponimages"; // MUDE AQUI
 
 interface ImagemGaleria {
   id: number;
@@ -46,7 +46,7 @@ export default function GalleryFeed() {
             className="cursor-pointer overflow-hidden rounded-xl aspect-[9/16] bg-gray-200 hover:opacity-90 transition-opacity"
           >
             <img
-              src={`http://sothink.com.br/apinippon/${item.imagem}`}
+              src={`http://sothink.com.br/centenario26/${item.imagem}`}
               alt="Galeria"
               className="w-full h-full object-cover"
             />
@@ -75,7 +75,7 @@ export default function GalleryFeed() {
 
           {/* Imagem do Slide */}
           <img
-            src={`http://sothink.com.br/apinippon/${imagens[slideAtual].imagem}`}
+            src={`http://sothink.com.br/centenario26/${imagens[slideAtual].imagem}`}
             alt="Slide"
             className="max-h-[90vh] max-w-[90vw] object-contain rounded-md"
             onClick={(e) => e.stopPropagation()} // Impede que o clique na imagem feche o modal

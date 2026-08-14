@@ -20,7 +20,7 @@ export default function RelacaoAtletasPage({
     const fetchRelacao = async () => {
       try {
         const response = await fetch(
-          "https://sothink.com.br/apinippon/api/v2/nippon/listar?tabela=completo"
+          "https://sothink.com.br/centenario26/api/v2/nippon/listar?tabela=completo"
         );
 
         if (!response.ok) {

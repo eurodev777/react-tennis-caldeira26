@@ -43,7 +43,7 @@ export default function App() {
 
   const buscarChaves = async () => {
     const res = await fetch(
-      "https://sothink.com.br/apinippon/api/v2/nippon/list-images"
+      "https://sothink.com.br/centenario26/api/v2/nippon/list-images"
     );
 
     const data = await res.json();
@@ -159,35 +159,35 @@ export default function App() {
               <div className="flex flex-col gap-6 items-center justify-center h-auto max-w-2xl mx-auto py-8">
                 {chaves?.image_1 && (
                   <img
-                    src={`https://sothink.com.br/apinippon/${chaves.image_1}`}
+                    src={`https://sothink.com.br/centenario26/${chaves.image_1}`}
                     className="max-w-full"
                   />
                 )}
 
                 {chaves?.image_2 && (
                   <img
-                    src={`https://sothink.com.br/apinippon/${chaves.image_2}`}
+                    src={`https://sothink.com.br/centenario26/${chaves.image_2}`}
                     className="max-w-full"
                   />
                 )}
 
                 {chaves?.image_3 && (
                   <img
-                    src={`https://sothink.com.br/apinippon/${chaves.image_3}`}
+                    src={`https://sothink.com.br/centenario26/${chaves.image_3}`}
                     className="max-w-full"
                   />
                 )}
 
                 {chaves?.image_4 && (
                   <img
-                    src={`https://sothink.com.br/apinippon/${chaves.image_4}`}
+                    src={`https://sothink.com.br/centenario26/${chaves.image_4}`}
                     className="max-w-full"
                   />
                 )}
 
                 {chaves?.image_5 && (
                   <img
-                    src={`https://sothink.com.br/apinippon/${chaves.image_5}`}
+                    src={`https://sothink.com.br/centenario26/${chaves.image_5}`}
                     className="max-w-full"
                   />
                 )}

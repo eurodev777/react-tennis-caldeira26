@@ -130,7 +130,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             </button> */}
 
             {/* Botão TABELAS */}
-            {/* <button
+            <button
               onClick={() => handlePageChange("galeria")}
               className={`flex items-center space-x-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition ${
                 currentPage === "galeria"
@@ -140,7 +140,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             >
               <GalleryHorizontal className="h-3.5 w-3.5" />
               <span>Galeria</span>
-            </button> */}
+            </button>
 
             {/* Botão REGULAMENTO */}
             <button
@@ -239,7 +239,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
               </button> */}
 
               {/* Botão TABELAS (Mobile) */}
-              {/* <button
+              <button
                 onClick={() => handlePageChange("galeria")}
                 className={`flex w-full items-center space-x-2 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-wider ${
                   currentPage === "galeria"
@@ -249,7 +249,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
               >
                 <GalleryHorizontal className="h-4 w-4" />
                 <span>Galeria</span>
-              </button> */}
+              </button>
 
               {/* Botão REGULAMENTO (Mobile) */}
               <button
