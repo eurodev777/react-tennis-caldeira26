@@ -24,6 +24,7 @@ import RelacaoAtletasAdminPage from "./components/RelacaoAtletasAdminPage";
 import GalleryFeed from "./components/GalleryFeed";
 import Resultados from "./components/Resultados";
 import GaleriaCampeoes from "./components/GaleriaCampeoes";
+import JogosPage from "./components/JogosPage";
 
 // Exact path from generated image output
 const AERIAL_IMAGE_PATH = "/src/assets/drone.jpg";
@@ -33,17 +34,17 @@ export default function App() {
     "home" | "regulamento" | "equipes" | "galeria"
   >("home");
   const [selectedLogo, setSelectedLogo] = useState<Sponsor | Supporter | null>(
-    null
+    null,
   );
   const [chaves, setChaves] = useState<any>(null);
-1
+  1;
   useEffect(() => {
     buscarChaves();
   }, []);
 
   const buscarChaves = async () => {
     const res = await fetch(
-      "https://sothink.com.br/centenario26/api/v2/nippon/list-images"
+      "https://sothink.com.br/centenario26/api/v2/nippon/list-images",
     );
 
     const data = await res.json();
@@ -52,8 +53,8 @@ export default function App() {
   };
 
   const handleResults = async () => {
-    setCurrentPage("resultados")
-  }
+    setCurrentPage("resultados");
+  };
 
   // Helper to scroll smoothly to sections
   const handleScrollToSection = (sectionId: string) => {
@@ -105,8 +106,8 @@ export default function App() {
             </motion.div>
           )}
 
-                    {/* NOVA PÁGINA AQUI */}
-                    {currentPage === "resultados" && (
+          {/* NOVA PÁGINA AQUI */}
+          {currentPage === "resultados" && (
             <motion.div
               key="resultados"
               initial={{ opacity: 0, y: 15 }}
@@ -131,7 +132,7 @@ export default function App() {
               <RelacaoAtletasPageProps onBack={() => setCurrentPage("home")} />
             </motion.div>
           )}
-          
+
           {/* NOVA PÁGINA AQUI */}
           {currentPage === "galeria" && (
             <motion.div
@@ -156,42 +157,7 @@ export default function App() {
               transition={{ duration: 0.3 }}
               className="bg-[#FCFAF2] min-h-[80vh]"
             >
-              <div className="flex flex-col gap-6 items-center justify-center h-auto max-w-2xl mx-auto py-8">
-                {chaves?.image_1 && (
-                  <img
-                    src={`https://sothink.com.br/centenario26/${chaves.image_1}`}
-                    className="max-w-full"
-                  />
-                )}
-
-                {chaves?.image_2 && (
-                  <img
-                    src={`https://sothink.com.br/centenario26/${chaves.image_2}`}
-                    className="max-w-full"
-                  />
-                )}
-
-                {chaves?.image_3 && (
-                  <img
-                    src={`https://sothink.com.br/centenario26/${chaves.image_3}`}
-                    className="max-w-full"
-                  />
-                )}
-
-                {chaves?.image_4 && (
-                  <img
-                    src={`https://sothink.com.br/centenario26/${chaves.image_4}`}
-                    className="max-w-full"
-                  />
-                )}
-
-                {chaves?.image_5 && (
-                  <img
-                    src={`https://sothink.com.br/centenario26/${chaves.image_5}`}
-                    className="max-w-full"
-                  />
-                )}
-              </div>
+              <JogosPage onBack={() => setCurrentPage("home")} />
             </motion.div>
           )}
           {/* admin */}

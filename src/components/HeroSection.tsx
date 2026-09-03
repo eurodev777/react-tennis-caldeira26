@@ -10,6 +10,7 @@ import logo  from '../assets/nippon-sorocaba.png';
 import nippon  from '../assets/logo.png';
 import insta  from '../assets/instagram.png';
 import local  from '../assets/drone.jpg';
+import centenarias  from '../assets/centenarias.png';
 
 interface HeroSectionProps {
   aerialImagePath: string;
@@ -126,7 +127,10 @@ export default function HeroSection({ aerialImagePath }: HeroSectionProps) {
           <img src={nippon} />
 
           {/* Right: Date Badge */}
-          <div className="flex text-[#BA9155] flex-col items-center text-center md:items-end md:text-right">
+          <div className="flex text-[#BA9155] flex-col items-center text-center md:items-center md:text-right">
+            <div className="w-full ml-34 lg:mb-4 mb-2">
+              <img src={centenarias} className="lg:w-[250px] w-[200px]" />
+            </div>
             <h2 className="text-2xl font-black md:text-3xl tracking-tight leading-none">
               17, 18, 19 e 20 de Setembro
             </h2>

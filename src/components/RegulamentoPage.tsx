@@ -3,145 +3,338 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
-import { Search, ArrowLeft, BookOpen, ShieldAlert, FileText, ChevronRight, Hash, Clock, Landmark, Award } from 'lucide-react';
-import { motion } from 'motion/react';
+import React, { useMemo, useState } from "react";
+import {
+  Search,
+  ArrowLeft,
+  BookOpen,
+  ShieldAlert,
+  FileText,
+  ChevronRight,
+  Hash,
+  Clock,
+  Landmark,
+  Award,
+} from "lucide-react";
+import { motion } from "motion/react";
 
 interface RegulamentoPageProps {
   onBack: () => void;
 }
 
-export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string>('todos');
+type RuleItem = {
+  label: string;
+  text: string;
+};
 
-  // Organized segments of the regulation for structured searching and filtering
-  const rulesData = useMemo(() => {
+type RuleSection = {
+  id: string;
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: RuleItem[];
+};
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string>("todos");
+
+  const rulesData = useMemo<RuleSection[]>(() => {
     return [
       {
-        id: 'geral',
-        title: 'Informações Gerais & Local',
+        id: "geral",
+        title: "Informações Gerais",
         icon: Landmark,
         items: [
-          { label: 'Local', text: 'Sede Campestre II - Nippon Sorocaba - União Cultural e Esportiva Nipo Brasileira de Sorocaba (Antiga Estrada de Araçoiaba da Serra, 211, Araçoiaba da Serra - SP).' },
-          { label: 'Formato do Torneio', text: 'Equipes (Masculino e Feminino: Sem limite de idade).' },
-          { label: 'Quadras Disponibilizadas', text: '8 Quadras de Saibro.' },
-          { label: 'Bolas a serem utilizadas', text: 'Prince NX Tour Pro' },
-          { label: 'Categorias', text: 'Ouro Masculino, Prata Masculino, Bronze Masculino, Ouro Feminino e Prata Feminino.' },
-          { label: 'Datas', text: '17 de Julho de 2026 (Sexta): Início 7:00hs; 18 de Julho de 2026 (Sábado): Início 7:00hs; 19 de Julho de 2026 (Domingo): Início 7:00hs (Finais), com cerimônia de encerramento às 13:30hs.' }
-        ]
+          {
+            label: "Evento",
+            text: "11º Torneio Intercolonial de Tênis Nippon Sorocaba - 2026 — Duplas 120 / 130 / 140 / 150 / 160 anos.",
+          },
+          {
+            label: "Local",
+            text: "Nippon Sorocaba (União Cultural Esportiva Nipo Brasileira de Sorocaba) — Sede Campestre II, Antiga Estrada de Araçoiaba da Serra, 211 — Araçoiaba da Serra.",
+          },
+          {
+            label: "Formato do Torneio",
+            text: "Duplas 120 anos, Duplas 130 anos, Duplas 140 anos, Duplas 150 anos e Duplas 160 anos.",
+          },
+          {
+            label: "Datas",
+            text: "17 de Setembro de 2026 (quinta-feira): início às 16h, somente Duplas 150 / 160 anos. 18 de Setembro de 2026 (sexta-feira): início às 7h. 19 de Setembro de 2026 (sábado): início às 7h. 20 de Setembro de 2026 (domingo): finais das chaves e cerimônia de encerramento, com início às 7h e encerramento às 13h30.",
+          },
+        ],
       },
       {
-        id: 'composicao',
-        title: 'Composição das Equipes',
+        id: "duplas",
+        title: "Composição das Duplas",
         icon: FileText,
         items: [
-          { label: 'Categorias Masculinas (Ouro, Prata e Bronze)', text: 'Cada equipe poderá ser composta de no mínimo 5 atletas e máximo de 7 atletas, sem limite de idade.' },
-          { label: 'Categorias Femininas (Ouro e Prata)', text: 'Cada equipe poderá ser composta de no mínimo 6 atletas e máximo de 8 atletas, sem limite de idade.' },
-          { label: 'Participação de não Nikkeys', text: 'Permitido a escalação de somente um (1) atleta Não Nikkey por súmula de confronto.' },
-          { label: 'Atleta Não Nikkey Cônjuge', text: 'O Atleta Não Nikkey/Não Descendente de Nikkey Cônjuge/Casado de/com pessoa Nikkey ou descendente, será considerado Nikkey para efeito de participação no torneio.' },
-          { label: 'Limite de Categorias', text: 'Cada jogador poderá jogar em somente uma (1) categoria.' },
-          { label: 'Profissionais na Categoria Ouro Masculino', text: 'Será permitida a participação de 2 (dois) professores/ex-professores ou profissional/ex-profissional de tênis por equipe.' },
-          { label: 'Profissionais na Categoria Ouro Feminino', text: 'Será permitida a participação de 1 (uma) professora/ex-professora ou profissional/ex-profissional de tênis por equipe.' },
-          { label: 'Profissionais nas demais categorias', text: 'Nas demais Categorias não será permitida a participação de professores/ex-professores ou profissional/ex-profissional.' },
-          { label: 'Regra de Idade para Professores', text: 'Professor/ex-Professor, profissional/ex-profissional acima de 60 anos (inclusive) não será considerado Profissional de Tênis para este torneio.' }
-        ]
+          {
+            label: "Quantidade de Chaves",
+            text: "Serão 6 Chaves de Duplas 120 anos, 5 Chaves de Duplas 130 anos, 6 Chaves de Duplas 140 anos, 3 Chaves de Duplas 150 anos e 1 Chave de Duplas 160 anos. As duplas serão classificadas pela Comissão Organizadora.",
+          },
+          {
+            label: "Categorias 120 anos",
+            text: "DUPLAS 120 ANOS “A”, “B”, “C”, “D”, “E” e “F”.",
+          },
+          {
+            label: "Categorias 130 anos",
+            text: "DUPLAS 130 ANOS “A”, “B”, “C”, “D” e “E”.",
+          },
+          {
+            label: "Categorias 140 anos",
+            text: "DUPLAS 140 ANOS “A”, “C”, “D”, “E”, “F” e “G”.",
+          },
+          {
+            label: "Categorias 150 anos",
+            text: "DUPLAS 150 ANOS “A”, “B” e “C”.",
+          },
+          {
+            label: "Categoria 160 anos",
+            text: "DUPLAS 160 ANOS — Chave Única.",
+          },
+          {
+            label: "Regra 120 anos",
+            text: "Participação de no mínimo um Nikkey por dupla. A somatória das idades deve ser pelo menos 120 anos para dupla masculina, 110 anos para dupla mista e 100 anos para dupla feminina.",
+          },
+          {
+            label: "Regra 130 anos",
+            text: "Participação de no mínimo um Nikkey por dupla. A somatória das idades deve ser 130 anos para dupla masculina, 120 anos para dupla mista e 110 anos para dupla feminina.",
+          },
+          {
+            label: "Regra 140 anos",
+            text: "Participação de no mínimo um Nikkey por dupla. A somatória das idades deve ser 140 anos para dupla masculina, 130 anos para dupla mista e 120 anos para dupla feminina.",
+          },
+          {
+            label: "Regra 150 anos",
+            text: "Participação de no mínimo um Nikkey por dupla. A somatória das idades deve ser 150 anos para dupla masculina, 140 anos para dupla mista e 130 anos para dupla feminina.",
+          },
+          {
+            label: "Regra 160 anos",
+            text: "Participação de no mínimo um Nikkey por dupla. A somatória das idades deve ser 160 anos para dupla masculina, 150 anos para dupla mista e 140 anos para dupla feminina.",
+          },
+          {
+            label: "Cônjuge não Nikkey",
+            text: "Esposa ou marido não Nikkey, casado(a) com Nikkey, será considerado Nikkey para efeito de participação no torneio.",
+          },
+          {
+            label: "Professor ou profissional",
+            text: "A formação das duplas estará limitada a somente 1 professor(a), ex-professor(a), profissional ou ex-profissional de tênis. Essa condição deverá ser informada no ato da inscrição e a dupla poderá ser classificada automaticamente na categoria “A” de cada idade.",
+          },
+        ],
       },
       {
-        id: 'jogos',
-        title: 'Formato dos Jogos & Pontuação',
-        icon: Clock,
-        items: [
-          { label: 'Sorteio', text: 'Os confrontos serão definidos por sorteio, realizados pela Comissão Organizadora.' },
-          { label: 'Confrontos Masculinos', text: 'Cada confronto será decidido através de 2 jogos de duplas e um jogo de simples, nessa seqüência.' },
-          { label: 'Confrontos Femininos', text: 'Cada confronto será decidido através de 3 jogos de duplas.' },
-          { label: 'Regras de Duplas', text: 'As duplas não poderão ser repetidas durante todo o torneio, com exceção de equipes em que não haja mais combinações possíveis.' },
-          { label: 'Confronto Já Definido', text: 'Estando o confronto já definido com 2 (duas) vitórias, o terceiro jogo deverá ser realizado mesmo assim, e portanto, as duplas relacionadas em súmula serão contabilizadas para efeito de combinações no Torneio.' },
-          { label: 'Horários e Quadras', text: 'Não haverá possibilidade de restrições de horários e datas. Eventualmente os jogos de um mesmo confronto poderão ocorrer em quadras simultâneas, portanto todos os atletas da equipe devem obedecer ao horário definido na tabela dos jogos.' },
-          { label: 'Jogos da Primeira Rodada e Chave Principal', text: 'Disputados em melhor de três (3) sets, no sistema "No-AD"*. Nos 1º e 2º sets, havendo empate em 6 x 6, a decisão do set será disputado através de um tie-break normal de sete (7) pontos com diferença de dois (2) pontos. Ocorrendo um empate em sets em 1 a 1, o 3º set será decidido através de um "super tie-break", onde o vencedor será aquele que atingir dez (10) pontos com diferença de dois (2) pontos.' },
-          { label: 'Jogos da Chave Repescagem (todas as categorias)', text: 'Disputa em "Pro set" de 8 (oito) games, no sistema No-AD*. Havendo empate em 7 x 7, o jogo será decidido através de um "tie-break" normal de sete (7) pontos com diferença de dois (2) pontos.' },
-          { label: 'Regra do No-AD*', text: 'Todos os jogos serão disputados com a regra do No-AD: o game estando em 40 a 40 será disputado apenas mais um ponto, com a dupla recebedora tendo direito de escolha do lado do saque.' }
-        ]
-      },
-      {
-        id: 'operacao',
-        title: 'Súmula, Capitão, WO & Aquecimento',
-        icon: ShieldAlert,
-        items: [
-          { label: 'Preenchimento da Súmula', text: 'Trinta minutos antes de cada confronto, deverá ser preenchida e apresentada a súmula pelo capitão, contendo a inscrição dos jogadores em ordem seqüencial: Masculino = Duplas, Duplas, Simples; Feminino = Duplas, Duplas, Duplas.' },
-          { label: 'Participação por Confronto', text: 'Um jogador não pode atuar duas vezes no mesmo confronto.' },
-          { label: 'Papel do Capitão', text: 'O capitão poderá ficar dentro da quadra (sentado no banco junto à rede) e poderá dar instruções somente nas viradas de lado. Caso ele seja componente da equipe e vá jogar, deverá passar o seu cargo a um substituto.' },
-          { label: 'WO por Ausência', text: 'Caso ocorra a ausência de um jogador no momento do início do jogo, será proclamada a vitória do oponente por WO e será computada a contagem de 6/0 e 6/0 para a Chave Principal e 8/0 para a Chave Repescagem.' },
-          { label: 'Aquecimento em Quadra', text: 'As equipes terão 5 minutos de aquecimento a partir do anúncio da chamada do jogo.' },
-          { label: 'Antecedência Recomendada', text: 'Pedimos que os atletas cheguem pelo menos com 1 hora de antecedência aos jogos programados.' }
-        ]
-      },
-      {
-        id: 'sistematica',
-        title: 'Sistemática das Chaves',
+        id: "categorias",
+        title: "Composição das Categorias",
         icon: Hash,
         items: [
-          { label: 'Categoria Ouro Masculino (5 equipes)', text: 'Os confrontos Primeira Rodada serão definidos através de Sorteio. Na Primeira Rodada, as Equipes terão 2 confrontos cada, definidos por sorteio. As equipes que tiverem os 2 melhores resultados, disputarão a Final Principal. As equipes que tiverem o terceiro e quarto melhor resultado, disputarão a Final da Repescagem. Jogos Principal e Final; melhor de 3 Sets, No-Ad. Final da Repescagem: Set-Pro até 8, No-Ad.' },
-          { label: 'Critérios de Classificação (Ouro Masculino e Feminino)', text: 'Saldo de Vitórias; Saldo de Sets; Saldo de Games (sem pontos do 3º set); Saldo de Pontos no 3º set (caso aplicável); Sorteio. Obs: A equipe com pior desempenho poderá disputar a Categoria Prata na próxima edição.' },
-          { label: 'Categoria Prata Masculino (8 equipes)', text: 'Primeira rodada por Sorteio. Vencedores do primeiro confronto disputam Chave Principal e os perdedores disputam Chave Repescagem. Principal: melhor de 3 sets, No-Ad. Repescagem: Set-Pro até 8, No-Ad. Campeão promove para Ouro. Piores 2 disputam Bronze na próxima edição.' },
-          { label: 'Categoria Bronze Masculino (12 equipes)', text: 'Primeira rodada por Sorteio. Chave com 4 cabeças de chave, que também por sorteio enfrentam vencedores da Primeira Rodada. Perdedores disputam Repescagem junto com perdedores da Primeira Rodada. Principal: melhor de 3 sets, No-Ad. Repescagem: Set-Pro até 8, No-Ad. Campeão e Vice promovem para Prata. Piores 2 podem ir para Qualifying.' },
-          { label: 'Categoria Ouro Feminino (6 equipes)', text: 'Primeira rodada por sorteio (Top 2 anteriores não se enfrentam na rodada 1). Vencedoras disputam Chave Principal (Grupo de 3, Round Robin). Perdedoras disputam Repescagem (Grupo de 3, Round Robin). Top 2 da Principal serão Campeã e Vice. Melhor da Repescagem será Campeã da Repescagem. Principal: melhor de 3 sets, No-Ad. Repescagem: Set-Pro até 8, No-Ad.' },
-          { label: 'Categoria Prata Feminino (8 equipes)', text: 'Primeira rodada por Sorteio. Vencedores do primeiro confronto disputam Chave Principal e os perdedores disputam Chave Repescagem. Principal: melhor de 3 sets, No-Ad. Repescagem: Set-Pro até 8, No-Ad. Campeão promove para Ouro. Piores 2 podem disputar Qualifying para a próxima edição.' }
-        ]
+          {
+            label: "Chaves com 4 duplas",
+            text: "Duplas 120 Anos “A”, 130 Anos “A”, 140 Anos “A” e 150 Anos “A”: chaves com 4 duplas no sistema todos contra todos (round-robin). As três melhores duplas classificadas sagram-se Campeã, Vice-Campeã e 3º Lugar, respectivamente.",
+          },
+          {
+            label: "Chaves com 6 duplas",
+            text: "Duplas 120 Anos “B”, 130 Anos “B”, 140 Anos “C” e 160 Anos: chave com 6 duplas, dividida em 2 grupos com 3 duplas cada. Classificam-se para a Final Principal os primeiros colocados de cada grupo. Classificam-se para a Final da Repescagem os segundos colocados de cada grupo.",
+          },
+          {
+            label: "Chaves com 8 duplas",
+            text: "Duplas 120 Anos “C”, “D”, “E”, “F”; Duplas 130 Anos “C”, “D”, “E”; Duplas 140 Anos “D”, “E”, “F”, “G”; e Duplas 150 Anos “B”, “C”: os ganhadores do primeiro confronto disputam a semifinal para classificação à Final Principal, enquanto os perdedores do primeiro confronto disputam a semifinal para classificação da Final da Repescagem.",
+          },
+          {
+            label: "Alterações de composição",
+            text: "A composição das Categorias/Chaves pode ser alterada de acordo com a categoria/idade das duplas inscritas.",
+          },
+        ],
       },
       {
-        id: 'premiacao',
-        title: 'Premiação, Taxas & Condições Gerais',
+        id: "jogos",
+        title: "Formato dos Jogos",
+        icon: Clock,
+        items: [
+          {
+            label: "Jogos em melhor de 3 sets",
+            text: "Primeira Rodada e Rodadas da Chave Principal nas chaves com 8 duplas, Rodada de Grupos nas chaves com 6 duplas e Round-Robin nas chaves com 4 duplas serão disputados em melhor de três sets, no sistema No-AD.",
+          },
+          {
+            label: "1º e 2º sets",
+            text: "Nos 1º e 2º sets não ocorrerá tie-break. Havendo empate em 5 x 5, vence o set quem fizer 6 games primeiro.",
+          },
+          {
+            label: "Empate em sets",
+            text: "Ocorrendo empate em sets em 1 a 1, o confronto será decidido por meio de tie-break. A dupla vencedora será aquela que atingir sete pontos, com diferença de dois pontos.",
+          },
+          {
+            label: "Chave Repescagem",
+            text: "Rodadas da Chave Repescagem, perdedores do 1º jogo nas chaves com 8 duplas e Final Repescagem nas chaves com 8, 6 e 5 duplas: disputa em set único (pró-set) até 8 games, no sistema No-AD.",
+          },
+          {
+            label: "Tie-break na Repescagem",
+            text: "Havendo empate em 7 x 7 na Repescagem, o confronto será decidido por tie-break. A dupla vencedora será aquela que atingir sete pontos, com diferença de dois pontos.",
+          },
+          {
+            label: "No-AD",
+            text: "Todos os jogos serão disputados com a regra No-AD: o game estando em 40 a 40 será disputado apenas mais um ponto, com a dupla recebedora tendo direito de escolha do lado do saque.",
+          },
+          {
+            label: "WO",
+            text: "Caso ocorra ausência de um jogador no momento do início do jogo, após a devida chamada pela mesa organizadora, será proclamada a vitória do oponente por WO.",
+          },
+          {
+            label: "Aquecimento",
+            text: "As duplas terão 5 minutos de aquecimento a partir do anúncio da chamada do jogo.",
+          },
+          {
+            label: "Antecedência",
+            text: "Os atletas devem chegar pelo menos com 1 hora de antecedência aos jogos programados.",
+          },
+        ],
+      },
+      {
+        id: "classificacao",
+        title: "Critérios de Classificação",
+        icon: ShieldAlert,
+        items: [
+          {
+            label: "Chaves com 4 duplas",
+            text: "Critérios de classificação, nesta ordem: Quantidade de Vitórias; Confronto direto; Saldo de Sets; Saldo de Games, observando que pontos do 3º set não serão computados como games; Saldo de Pontos no Tie-Break, se aplicável; Maior somatória das idades da dupla.",
+          },
+          {
+            label: "Fase de Grupos — Chaves com 6 duplas",
+            text: "Critérios de classificação na fase de grupos, nesta ordem: Quantidade de Vitórias; Confronto direto; Saldo de Sets; Saldo de Games; Saldo de Pontos no Tie-Break, se aplicável; Maior somatória das idades da dupla.",
+          },
+          {
+            label: "Sistema de 4 duplas",
+            text: "Sistema de chaveamento com Grupo Único em todos contra todos. As três melhores duplas ficam como Campeã, Vice-Campeã e 3º Lugar.",
+          },
+          {
+            label: "Sistema de 6 duplas",
+            text: "Sistema de chaveamento com Final Repescagem, Fase de Grupos e Final Principal. O Grupo 1 e o Grupo 2 classificam seus primeiros colocados para a Final Principal e seus segundos colocados para a Final Repescagem.",
+          },
+          {
+            label: "Sistema de 8 duplas",
+            text: "Sistema de chaveamento com Repescagem e Chave Principal. Vencedores avançam pela Chave Principal e perdedores seguem para a Repescagem.",
+          },
+        ],
+      },
+      {
+        id: "premiacao",
+        title: "Premiação, Taxas e Alimentação",
         icon: Award,
         items: [
-          { label: 'Premiação', text: 'Troféus para as equipes Campeã, Vice-Campeã e Campeã da Repescagem em todas as Categorias.' },
-          { label: 'Taxa de Inscrição', text: 'R$ 350,00 (Trezentos e cinquenta reais) por atleta, com direito ao almoço de encerramento (19 de Julho).' },
-          { label: 'Direitos da Comissão', text: 'A Comissão se reserva ao direito de alterar o sistema de chaveamento, sistema dos jogos e horários, em caso de alterações no número de duplas participantes ou motivo de força maior.' },
-          { label: 'Dúvidas e Penalidades', text: 'Qualquer dúvida sobre a aplicação e interpretação do regulamento, inclusive sobre a aplicação de penalidades, será resolvida pela Comissão Técnica e Disciplinar, cuja decisão será soberana e definitiva.' },
-          { label: 'Casos Omissos', text: 'Os casos omissos no presente regulamento serão resolvidos pela Comissão Organizadora.' },
-          { label: 'Comprovação de Identidade', text: 'A qualquer momento, a comissão pode pedir RG ou outro documento que prove a identidade conforme a inscrição prévia.' }
-        ]
-      }
+          {
+            label: "Troféus — Repescagem",
+            text: "Troféus para as duplas Campeãs, Vice-Campeãs e Campeãs da Repescagem nas categorias: Duplas 120 “B”, “C”, “D”, “E” e “F”; Duplas 130 “B”, “C”, “D” e “E”; Duplas 140 “B”, “C”, “D”, “E” e “F”; Duplas 150 “B” e “C”; e Duplas 160.",
+          },
+          {
+            label: "Troféus — 3º Lugar",
+            text: "Troféus para as duplas Campeãs, Vice-Campeãs e 3º Lugar nas categorias: Duplas 120 “A”, Duplas 130 “A”, Duplas 140 “A” e Duplas 150 “A”.",
+          },
+          {
+            label: "Taxa de inscrição",
+            text: "R$ 350,00 por jogador, incluso almoço na cerimônia de encerramento em 20 de Setembro.",
+          },
+          {
+            label: "Alimentação",
+            text: "Nos dias 18, 19 e 20 de Setembro, será servido café da manhã aos tenistas participantes e convidados. Nos dias 18, 19 e 20 de Setembro, terá almoço à venda.",
+          },
+          {
+            label: "Arbitragem",
+            text: "Regis Yoshida / Julio Mira.",
+          },
+        ],
+      },
+      {
+        id: "inscricao",
+        title: "Inscrição, Prazos e Comissão",
+        icon: BookOpen,
+        items: [
+          {
+            label: "Participação por categoria",
+            text: "Cada participante poderá participar somente de 1 categoria de Duplas.",
+          },
+          {
+            label: "Confirmação das vagas",
+            text: "Prazo para confirmação das vagas: 07/Agosto/2026.",
+          },
+          {
+            label: "Envio da relação das duplas",
+            text: "Prazo para envio da relação das duplas: 31/Agosto/2026.",
+          },
+          {
+            label: "Alteração da relação das duplas",
+            text: "A relação das duplas, depois de divulgada, não poderá mais ser modificada, salvo por motivos de contusão ou força maior, desde que aprovados pela Comissão Organizadora e que obedeçam aos critérios do regulamento.",
+          },
+          {
+            label: "Alterações pela Comissão",
+            text: "A Comissão se reserva ao direito de alterar o sistema de chaveamento, sistema dos jogos e horários em caso de necessidade de ajustes no número/categoria das duplas participantes ou de atrasos por qualquer motivo.",
+          },
+          {
+            label: "Dúvidas e penalidades",
+            text: "Qualquer dúvida sobre a aplicação e interpretação do regulamento, inclusive sobre penalidades, será resolvida pela Comissão Técnica e Disciplinar, cuja decisão será soberana e definitiva.",
+          },
+          {
+            label: "Casos omissos",
+            text: "Os casos omissos no presente regulamento serão resolvidos pela Comissão Organizadora.",
+          },
+          {
+            label: "Comprovação de identidade",
+            text: "A qualquer momento, a comissão pode pedir RG ou outro documento que prove a identidade conforme a inscrição prévia.",
+          },
+          {
+            label: "Comissão Organizadora",
+            text: "Milton Toshihiko Tsubaki, Sergio Shigueo Takeda, Raquel Takeda Sakanaka, Tomoko Kanaschiro e Israel Valle — Diretoria do Departamento de Tênis - Nippon Sorocaba - Gestão 2026.",
+          },
+        ],
+      },
     ];
   }, []);
 
-  // Filter and search logic
   const filteredRules = useMemo(() => {
+    const termo = searchTerm.trim().toLowerCase();
+
     return rulesData
-      .map(category => {
-        // If specific category is active, bypass others
-        if (activeCategory !== 'todos' && category.id !== activeCategory) {
+      .map((category) => {
+        if (activeCategory !== "todos" && category.id !== activeCategory) {
           return null;
         }
 
-        // Filter items inside category based on search
-        const matchedItems = category.items.filter(item => {
-          const searchLower = searchTerm.toLowerCase();
+        const matchedItems = category.items.filter((item) => {
+          if (!termo) return true;
+
           return (
-            item.label.toLowerCase().includes(searchLower) ||
-            item.text.toLowerCase().includes(searchLower)
+            item.label.toLowerCase().includes(termo) ||
+            item.text.toLowerCase().includes(termo)
           );
         });
 
-        if (matchedItems.length === 0) return null;
+        if (!matchedItems.length) return null;
 
         return {
           ...category,
-          items: matchedItems
+          items: matchedItems,
         };
       })
-      .filter((cat): cat is typeof rulesData[0] => cat !== null);
+      .filter((cat): cat is RuleSection => cat !== null);
   }, [searchTerm, activeCategory, rulesData]);
 
-  // Helper to highlight searched terms
-  const highlightText = (text: string, search: string) => {
-    if (!search) return text;
-    const parts = text.split(new RegExp(`(${search})`, 'gi'));
+  const highlightText = (value: string, search: string) => {
+    const termo = search.trim();
+
+    if (!termo) return value;
+
+    const parts = value.split(new RegExp(`(${escapeRegExp(termo)})`, "gi"));
+
     return (
       <>
-        {parts.map((part, i) =>
-          part.toLowerCase() === search.toLowerCase() ? (
-            <mark key={i} className="bg-amber-100 text-amber-950 font-semibold px-0.5 rounded-sm">
+        {parts.map((part, index) =>
+          part.toLowerCase() === termo.toLowerCase() ? (
+            <mark
+              key={index}
+              className="rounded-sm bg-amber-100 px-0.5 font-semibold text-amber-950"
+            >
               {part}
             </mark>
           ) : (
@@ -152,71 +345,80 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
     );
   };
 
+  const filters = [
+    { id: "todos", label: "Todos" },
+    { id: "geral", label: "Geral" },
+    { id: "duplas", label: "Duplas" },
+    { id: "categorias", label: "Categorias" },
+    { id: "jogos", label: "Jogos" },
+    { id: "classificacao", label: "Classificação" },
+    { id: "premiacao", label: "Premiação" },
+    { id: "inscricao", label: "Prazos" },
+  ];
+
   return (
-    <div id="regulamento-page-container" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      
-      {/* Return Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gold/15 pb-6 mb-8">
+    <div
+      id="regulamento-page-container"
+      className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+    >
+      <div className="mb-8 flex flex-col justify-between border-b border-[#d4af37]/15 pb-6 sm:flex-row sm:items-center">
         <div className="flex items-center space-x-3">
           <button
             onClick={onBack}
-            className="group flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 shadow-xs transition hover:border-[#c93b2b]/30 hover:bg-[#c93b2b]/5 hover:text-[#c93b2b]"
+            className="group flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 shadow-sm transition hover:border-[#c93b2b]/30 hover:bg-[#c93b2b]/5 hover:text-[#c93b2b]"
           >
             <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
           </button>
+
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#c93b2b]">
-              11º Intercolonial Nippon Sorocaba
+              11º Torneio Intercolonial de Tênis
             </span>
-            <h1 className="font-serif text-3xl font-black text-stone-900 tracking-tight leading-none mt-1">
+
+            <h1 className="mt-1 font-serif text-3xl font-black leading-none tracking-tight text-stone-900">
               REGULAMENTO OFICIAL
             </h1>
+
+            <p className="mt-1 text-xs font-bold uppercase tracking-wide text-stone-500">
+              Duplas 120 / 130 / 140 / 150 / 160 anos
+            </p>
           </div>
         </div>
-        
-        {/* Quick info tag */}
-        <div className="mt-4 sm:mt-0 inline-flex items-center space-x-2 rounded-full bg-stone-100 px-4 py-1.5 text-xs font-semibold text-stone-600 border border-stone-200">
-          <BookOpen className="h-4 w-4 text-gold-dark" />
-          <span>Vigência: Julho de 2026</span>
+
+        <div className="mt-4 inline-flex items-center space-x-2 rounded-full border border-stone-200 bg-stone-100 px-4 py-1.5 text-xs font-semibold text-stone-600 sm:mt-0">
+          <BookOpen className="h-4 w-4 text-[#b88a1d]" />
+          <span>Vigência: Setembro de 2026</span>
         </div>
       </div>
 
-      {/* Control Panel: Search & Categories */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-12 mb-8">
-        {/* Search Input (7 cols) */}
-        <div className="md:col-span-6 relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-stone-400">
-            <Search className="h-4.5 w-4.5" />
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-12">
+        <div className="relative md:col-span-6">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
+            <Search className="h-4 w-4" />
           </span>
+
           <input
             type="text"
-            placeholder="Pesquisar regra, termo, WO, super tie-break..."
+            placeholder="Pesquisar regra, categoria, WO, No-AD, prazo..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl focus:border-[#c93b2b] focus:ring-1 focus:ring-[#c93b2b] text-sm text-stone-800 placeholder-stone-400 font-medium shadow-2xs outline-none transition"
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className="w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-medium text-stone-800 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-[#c93b2b] focus:ring-1 focus:ring-[#c93b2b]"
           />
         </div>
 
-        {/* Category Filters (5 cols) */}
-        <div className="md:col-span-6 flex items-center space-x-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-          <span className="text-xs font-bold uppercase tracking-wider text-stone-400 shrink-0 mr-1 hidden lg:inline">
+        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 md:col-span-6 md:pb-0">
+          <span className="mr-1 hidden shrink-0 text-xs font-bold uppercase tracking-wider text-stone-400 lg:inline">
             Filtros:
           </span>
-          {[
-            { id: 'todos', label: 'Todos' },
-            { id: 'geral', label: 'Geral' },
-            { id: 'composicao', label: 'Composição' },
-            { id: 'jogos', label: 'Formato' },
-            { id: 'operacao', label: 'Súmula/WO' },
-            { id: 'sistematica', label: 'Chaves' }
-          ].map(cat => (
+
+          {filters.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
                 activeCategory === cat.id
-                  ? 'bg-stone-900 text-white shadow-xs'
-                  : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                  ? "bg-stone-900 text-white shadow-sm"
+                  : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
               }`}
             >
               {cat.label}
@@ -225,110 +427,131 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
         </div>
       </div>
 
-      {/* Main Grid Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar Navigation Index (Desktop Only) */}
-        <div className="hidden lg:block space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block px-3 mb-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+        <aside className="hidden space-y-1 lg:block">
+          <span className="mb-2 block px-3 text-[10px] font-bold uppercase tracking-widest text-stone-400">
             Índice de Seções
           </span>
-          {rulesData.map(section => {
+
+          {rulesData.map((section) => {
             const SectionIcon = section.icon;
             const isActive = activeCategory === section.id;
+
             return (
               <button
                 key={section.id}
                 onClick={() => {
                   setActiveCategory(section.id);
-                  setSearchTerm('');
+                  setSearchTerm("");
+
                   const element = document.getElementById(`section-${section.id}`);
+
                   if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    element.scrollIntoView({ behavior: "smooth", block: "start" });
                   }
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition ${
                   isActive
-                    ? 'bg-gold/15 text-gold-dark border border-gold/10'
-                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                    ? "border border-[#d4af37]/10 bg-[#d4af37]/15 text-[#8a6512]"
+                    : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
                 }`}
               >
                 <div className="flex items-center space-x-2.5">
-                  <SectionIcon className={`h-4.5 w-4.5 ${isActive ? 'text-gold-dark' : 'text-stone-400'}`} />
+                  <SectionIcon
+                    className={`h-4 w-4 ${
+                      isActive ? "text-[#8a6512]" : "text-stone-400"
+                    }`}
+                  />
+
                   <span>{section.title}</span>
                 </div>
+
                 <ChevronRight className="h-3 w-3 opacity-60" />
               </button>
             );
           })}
-          
-          <div className="mt-8 p-4 rounded-xl bg-orange-50/50 border border-orange-100 space-y-2">
-            <span className="text-[10px] font-bold text-orange-800 uppercase tracking-wider block">Suporte ao Atleta</span>
-            <p className="text-[11px] text-orange-700/90 leading-relaxed font-semibold">
-              Qualquer dúvida de arbitragem ou interpretação será dirimida soberanamente pela Comissão Técnica e Disciplinar.
+
+          <div className="mt-8 space-y-2 rounded-xl border border-orange-100 bg-orange-50/50 p-4">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-orange-800">
+              Suporte ao Atleta
+            </span>
+
+            <p className="text-[11px] font-semibold leading-relaxed text-orange-700/90">
+              Dúvidas, interpretação de regulamento e penalidades serão resolvidas pela
+              Comissão Técnica e Disciplinar.
             </p>
           </div>
-        </div>
+        </aside>
 
-        {/* Dynamic Rules List (3 cols on desktop) */}
-        <div className="lg:col-span-3 space-y-12">
+        <main className="space-y-10 lg:col-span-3">
           {filteredRules.length > 0 ? (
-            filteredRules.map(section => {
+            filteredRules.map((section, sectionIndex) => {
               const SectionIcon = section.icon;
+
               return (
-                <div
+                <motion.section
                   key={section.id}
                   id={`section-${section.id}`}
-                  className="bg-white rounded-2xl border border-stone-200/80 shadow-2xs overflow-hidden scroll-mt-24"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, delay: sectionIndex * 0.03 }}
+                  className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
                 >
-                  {/* Section Title Header */}
-                  <div className="flex items-center space-x-3 bg-stone-50 border-b border-stone-100 px-6 py-4">
+                  <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                      <SectionIcon className="h-4.5 w-4.5" />
+                      <SectionIcon className="h-4 w-4" />
                     </span>
-                    <h2 className="font-serif text-lg font-black text-stone-900 uppercase tracking-wide">
+
+                    <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
                       {section.title}
                     </h2>
                   </div>
 
-                  {/* Section Rule Items */}
                   <div className="divide-y divide-stone-100">
                     {section.items.map((item, index) => (
-                      <div key={index} className="p-6 hover:bg-stone-50/30 transition">
-                        <span className="text-xs font-bold text-gold-dark uppercase tracking-wide block">
+                      <div key={index} className="p-6 transition hover:bg-stone-50/30">
+                        <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
                           {highlightText(item.label, searchTerm)}
                         </span>
-                        <p className="mt-1 text-sm text-stone-600 font-medium leading-relaxed">
+
+                        <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
                           {highlightText(item.text, searchTerm)}
                         </p>
                       </div>
                     ))}
                   </div>
-                </div>
+                </motion.section>
               );
             })
           ) : (
-            <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-stone-300">
-              <span className="text-stone-400 block font-serif italic text-base">Nenhuma regra encontrada</span>
-              <p className="text-stone-500 text-xs mt-1">Experimente buscar por outros termos como "súmula", "WO" ou "sets".</p>
+            <div className="rounded-2xl border border-dashed border-stone-300 bg-white py-16 text-center">
+              <span className="block font-serif text-base italic text-stone-400">
+                Nenhuma regra encontrada
+              </span>
+
+              <p className="mt-1 text-xs text-stone-500">
+                Experimente buscar por outros termos como “No-AD”, “WO”, “duplas” ou
+                “prazos”.
+              </p>
+
               <button
                 onClick={() => {
-                  setSearchTerm('');
-                  setActiveCategory('todos');
+                  setSearchTerm("");
+                  setActiveCategory("todos");
                 }}
-                className="mt-4 text-xs font-bold text-[#c93b2b] uppercase hover:underline"
+                className="mt-4 text-xs font-bold uppercase text-[#c93b2b] hover:underline"
               >
                 Limpar filtros e busca
               </button>
             </div>
           )}
-        </div>
+        </main>
       </div>
 
-      {/* Floating back button helper */}
-      <div className="mt-12 flex justify-center border-t border-gold/15 pt-8">
+      <div className="mt-12 flex justify-center border-t border-[#d4af37]/15 pt-8">
         <button
           onClick={onBack}
-          className="flex items-center space-x-2 rounded-full bg-stone-900 text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md hover:bg-stone-800 transition"
+          className="flex items-center space-x-2 rounded-full bg-stone-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-stone-800"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Voltar para a Página Principal</span>
