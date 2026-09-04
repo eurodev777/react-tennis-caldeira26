@@ -80,7 +80,7 @@ const BASE_IMAGENS = "https://sothink.com.br/centenario26/";
 const API_CHAVES = "https://sothink.com.br/apichaves/api/jogos";
 
 const CARD_W = 355;
-const CARD_H = 126;
+const CARD_H = 184;
 const GAP_COL = 36;
 const GAP_SECAO = 44;
 const HEADER_H = 42;
@@ -665,34 +665,53 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
   const lado1 = dadosLado(jogo, 1, duplas);
   const lado2 = dadosLado(jogo, 2, duplas);
 
+  const nomesBox = (lado: ReturnType<typeof dadosLado>) => {
+    const jogadores = lado.jogadores
+      .split("/")
+      .map((nome) => nome.trim())
+      .filter(Boolean);
+
+    if (jogadores.length) {
+      return jogadores;
+    }
+
+    /*
+     * Para jogos futuros, tipo VENCEDOR JG.120E1,
+     * ainda precisa mostrar o texto de definição.
+     */
+    return [lado.auxiliar || lado.clube || "A definir"];
+  };
+
   return (
     <article className="jp-card" style={style}>
       <div className="jp-match">
         <div className="jp-team">
-          <strong>{lado1.clube}</strong>
-          {lado1.jogadores ? <span>{lado1.jogadores}</span> : null}
-          {!lado1.jogadores && lado1.auxiliar && lado1.auxiliar !== lado1.clube ? (
-            <small>{lado1.auxiliar}</small>
-          ) : null}
+          {nomesBox(lado1).map((nome, index) => (
+            <span key={`${nome}-${index}`} className="jp-player-name">
+              {nome}
+            </span>
+          ))}
         </div>
 
-        <div className="jp-x">X</div>
+        <div className="jp-middle">
+          <div className="jp-x">X</div>
+
+          <div className="jp-meta">
+            <b>{jogo.codigo || "SEM CÓDIGO"}</b>
+            {jogo.data_jogo ? <span>{formatarData(jogo.data_jogo)}</span> : null}
+            {jogo.status === "finalizado" && (jogo.placar1 || jogo.placar2) ? (
+              <em>{jogo.placar1 ?? 0} x {jogo.placar2 ?? 0}</em>
+            ) : null}
+          </div>
+        </div>
 
         <div className="jp-team">
-          <strong>{lado2.clube}</strong>
-          {lado2.jogadores ? <span>{lado2.jogadores}</span> : null}
-          {!lado2.jogadores && lado2.auxiliar && lado2.auxiliar !== lado2.clube ? (
-            <small>{lado2.auxiliar}</small>
-          ) : null}
+          {nomesBox(lado2).map((nome, index) => (
+            <span key={`${nome}-${index}`} className="jp-player-name">
+              {nome}
+            </span>
+          ))}
         </div>
-      </div>
-
-      <div className="jp-meta">
-        <b>{jogo.codigo || "SEM CÓDIGO"}</b>
-        {jogo.data_jogo ? <span>{formatarData(jogo.data_jogo)}</span> : null}
-        {jogo.status === "finalizado" && (jogo.placar1 || jogo.placar2) ? (
-          <em>{jogo.placar1 ?? 0} x {jogo.placar2 ?? 0}</em>
-        ) : null}
       </div>
     </article>
   );
@@ -1326,17 +1345,41 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
         }
 
         .jp-match {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+          display: flex;
+          flex-direction: column;
           align-items: stretch;
-          gap: 0;
+          gap: 6px;
         }
 
         .jp-team {
-          min-height: 68px;
+          min-height: 52px;
           background: #d9d9d9;
-          border-radius: 2px;
-          padding: 7px 7px 6px;
+          border-radius: 999px;
+          padding: 8px 14px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          overflow: hidden;
+        }
+
+        .jp-player-name {
+          display: block;
+          width: 100%;
+          color: #111827;
+          font-size: 13px;
+          line-height: 1.12;
+          font-weight: 950;
+          text-transform: uppercase;
+          letter-spacing: .45px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .jp-middle {
+          min-height: 34px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1344,59 +1387,19 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
           text-align: center;
         }
 
-        .jp-team strong {
-          display: block;
-          width: 100%;
-          color: #111827;
-          font-size: 13px;
-          line-height: 1.05;
-          font-weight: 950;
-          text-transform: uppercase;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .jp-team span {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          margin-top: 4px;
-          color: #111827;
-          font-size: 13px;
-          line-height: 1.08;
-          font-weight: 900;
-        }
-
-        .jp-team small {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          margin-top: 3px;
-          color: #57534e;
-          font-size: 11px;
-          line-height: 1.05;
-          font-weight: 850;
-          text-transform: uppercase;
-        }
-
         .jp-x {
-          display: flex;
-          align-items: center;
-          justify-content: center;
           color: #111827;
           font-size: 14px;
+          line-height: 1;
           font-weight: 950;
         }
 
         .jp-meta {
-          margin-top: 7px;
+          margin-top: 2px;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 7px;
           color: #57534e;
           font-size: 11px;
           line-height: 1;
