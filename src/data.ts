@@ -43,8 +43,8 @@ import brilho from './assets/expositores/brilho.jpg'
 import longway from './assets/expositores/longway.png'
 import brahma from './assets/expositores/brahma.png'
 import picole from './assets/expositores/picole-joao.jpeg'
-import italiana from './assets/apoio/italiana.jpeg'
-import manaki from './assets/apoio/manaki.jpeg'
+import italiana from './assets/expositores/italiana.jpeg'
+import manaki from './assets/expositores/manaki.jpeg'
 
 import { describe } from 'node:test';
 
