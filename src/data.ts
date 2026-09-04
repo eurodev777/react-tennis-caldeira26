@@ -27,7 +27,6 @@ import dr from './assets/apoio/dr.jpg'
 import mira from './assets/apoio/mira.jpg'
 import tadao from './assets/apoio/tadao.jpg'
 import sothink from './assets/apoio/sothink.png'
-import italiana from './assets/apoio/italiana.jpeg'
 import mt from './assets/diretoria/1.jpg'
 import ic from './assets/diretoria/2.jpg'
 import st from './assets/diretoria/3.jpg'
@@ -44,6 +43,8 @@ import brilho from './assets/expositores/brilho.jpg'
 import longway from './assets/expositores/longway.png'
 import brahma from './assets/expositores/brahma.png'
 import picole from './assets/expositores/picole-joao.jpeg'
+import italiana from './assets/apoio/italiana.jpeg'
+import manaki from './assets/apoio/manaki.jpeg'
 
 import { describe } from 'node:test';
 
@@ -67,21 +68,6 @@ export const EXHIBITORS = [
     logoText: shimi,
   },
   {
-    id: 'exp-atomy',
-    name: 'Atomy Santo André Oasis',
-    logoText: atomy,
-  },
-  {
-    id: 'exp-violet',
-    name: 'Violet Doces',
-    logoText: violet,
-  },
-  {
-    id: 'exp-comfort',
-    name: 'TG Comfort',
-    logoText: comfort,
-  },
-  {
     id: 'exp-alice',
     name: 'Alice Furuno',
     logoText: alice,
@@ -95,7 +81,17 @@ export const EXHIBITORS = [
     id: 'exp-picole-joao',
     name: 'Picolé João',
     logoText: picole,
-  }
+  },
+  {
+    id: 'exp-cozinha-italiana',
+    name: 'Cozinha Italiana',
+    logoText: italiana,
+  },
+  {
+    id: 'exp-manaki',
+    name: 'Manaki Japanese Food',
+    logoText: manaki,
+  },
 ];
 
 // 2. Array para os 3 patrocinadores ao lado do logo do Birugumi (parte de baixo)
@@ -352,19 +348,6 @@ export const SUPPORTERS = [
     whatsapp: '+5515997442108',
     phone: '(15) 99744-2108',
     description: 'Na Sothink, cada projeto começa com uma análise estratégica das áreas da empresa. A partir desse diagnóstico, oferecemos soluções personalizadas, alinhadas às necessidades específicas de cada cliente — afinal, cada negócio é único e vive realidades diferentes.',
-  },
-    {
-    id: 'italiana',
-    name: 'Cozinha Italiana',
-    logoType: 'text',
-    logoText: italiana,
-    tagline: 'outlet',
-    siteUrl: '',
-    instagram: '',
-    facebook: '',
-    whatsapp: '',
-    phone: '',
-    description: 'Qualidade que inspira. Praticidade que transforma.',
   }
 ];
 
