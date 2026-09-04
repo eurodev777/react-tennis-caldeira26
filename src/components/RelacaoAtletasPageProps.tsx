@@ -1,300 +1,272 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Search, Users, MapPin, Trophy, AlertCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
+import { relacaoMock } from "../relacaoMock";
 
 interface RelacaoAtletasPageProps {
   onBack: () => void;
 }
 
 type Atleta = {
-  nome: string;
-};
-
-type Dupla = {
   id?: string | number;
-  nome?: string;
-  jogador1?: string;
-  jogador2?: string;
-  atletas?: Atleta[];
+  nome: string;
 };
 
 type Equipe = {
   id?: string | number;
   nome: string;
-  cidade?: string;
-  clube?: string;
-  categoria?: string;
-  duplas?: Dupla[];
-  atletas?: Atleta[];
+  atletas: Atleta[];
 };
 
-const API_EQUIPES = "https://sothink.com.br/centenario26/api/v2/nippon/equipes/listar";
+type Categoria = {
+  id?: string | number;
+  titulo: string;
+  equipes: Equipe[];
+};
 
-const EQUIPES_EXEMPLO: Equipe[] = [
-  {
-    id: "exemplo-1",
-    nome: "Nippon Sorocaba",
-    cidade: "Sorocaba",
-    categoria: "Duplas 120 anos",
-    duplas: [
-      {
-        nome: "Dupla 1",
-        jogador1: "Akira Tanaka",
-        jogador2: "Carlos Sato",
-      },
-      {
-        nome: "Dupla 2",
-        jogador1: "Eduardo Yamamoto",
-        jogador2: "Roberto Suzuki",
-      },
-    ],
-  },
-  {
-    id: "exemplo-2",
-    nome: "Cooper Cotia",
-    cidade: "Cotia",
-    categoria: "Duplas 130 anos",
-    duplas: [
-      {
-        nome: "Dupla 1",
-        jogador1: "Marcos Nakamura",
-        jogador2: "Paulo Kato",
-      },
-      {
-        nome: "Dupla 2",
-        jogador1: "Sérgio Mori",
-        jogador2: "Rogério Kimura",
-      },
-    ],
-  },
-  {
-    id: "exemplo-3",
-    nome: "M. Camicado",
-    cidade: "São Paulo",
-    categoria: "Duplas 140 anos",
-    duplas: [
-      {
-        nome: "Dupla 1",
-        jogador1: "Kenji Matsuda",
-        jogador2: "Luiz Watanabe",
-      },
-    ],
-  },
-];
+type Relacao = {
+  categorias: Categoria[];
+};
 
-function texto(valor: unknown): string {
-  return String(valor ?? "").trim();
+type CategoriaSelecionada = number | "todos";
+
+const API_RELACAO =
+  "https://sothink.com.br/centenario26/api/v2/nippon/listar?tabela=completo";
+
+const ORDEM_CATEGORIAS = [120, 130, 140, 150, 160];
+
+function nomeCategoria(titulo: string) {
+  return titulo.replace(/^RELAÇÃO DOS ATLETAS\s*-\s*/i, "").trim();
 }
 
-function arraySeguro<T>(valor: unknown): T[] {
-  return Array.isArray(valor) ? (valor as T[]) : [];
+function idadeDaCategoria(titulo: string) {
+  const match = titulo.match(/\b(120|130|140|150|160)\b/);
+  return match ? Number(match[1]) : 999;
 }
 
-function pegarArrayPrincipal(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) return payload;
+function ordenarCategorias(categorias: Categoria[]) {
+  return [...categorias].sort((a, b) => {
+    const idadeA = idadeDaCategoria(a.titulo);
+    const idadeB = idadeDaCategoria(b.titulo);
 
-  if (!payload || typeof payload !== "object") return [];
+    const posA = ORDEM_CATEGORIAS.indexOf(idadeA);
+    const posB = ORDEM_CATEGORIAS.indexOf(idadeB);
 
-  const obj = payload as Record<string, unknown>;
+    const ordemA = posA === -1 ? 999 : posA;
+    const ordemB = posB === -1 ? 999 : posB;
 
-  const candidatos = [
-    obj.data,
-    obj.dados,
-    obj.equipes,
-    obj.items,
-    obj.result,
-    obj.results,
-    obj.lista,
-  ];
+    return ordemA - ordemB;
+  });
+}
 
-  for (const item of candidatos) {
-    if (Array.isArray(item)) return item;
+function normalizarAtleta(atleta: any, atletaIndex: number): Atleta | null {
+  // O mock atual usa atletas como strings.
+  if (typeof atleta === "string") {
+    const nome = atleta.trim();
+    return nome ? { id: atletaIndex, nome } : null;
   }
 
-  return [];
-}
+  // A API pode retornar objetos.
+  const nome = String(atleta?.nome ?? atleta?.name ?? "").trim();
 
-function normalizarDupla(item: unknown, index: number): Dupla {
-  if (!item || typeof item !== "object") {
-    return {
-      id: `dupla-${index}`,
-      nome: `Dupla ${index + 1}`,
-      jogador1: "",
-      jogador2: "",
-    };
-  }
-
-  const obj = item as Record<string, unknown>;
-
-  const atletas = arraySeguro<Record<string, unknown>>(obj.atletas || obj.jogadores).map((atleta) => ({
-    nome: texto(atleta.nome || atleta.name),
-  })).filter((atleta) => atleta.nome);
+  if (!nome) return null;
 
   return {
-    id: texto(obj.id) || `dupla-${index}`,
-    nome: texto(obj.nome || obj.dupla || obj.name) || `Dupla ${index + 1}`,
-    jogador1: texto(obj.jogador1 || obj.atleta1 || obj.player1),
-    jogador2: texto(obj.jogador2 || obj.atleta2 || obj.player2),
-    atletas,
+    id: atleta?.id ?? atletaIndex,
+    nome,
   };
 }
 
-function normalizarEquipe(item: unknown, index: number): Equipe {
-  if (!item || typeof item !== "object") {
+
+function relacaoTemConteudo(relacao: Relacao): boolean {
+  return relacao.categorias.some((categoria) =>
+    categoria.equipes.some((equipe) => equipe.atletas.length > 0),
+  );
+}
+
+function normalizarRelacao(payload: any): Relacao {
+  if (Array.isArray(payload?.categorias)) {
+    const categorias = payload.categorias.map(
+      (categoria: any, categoriaIndex: number): Categoria => ({
+        id: categoria?.id ?? categoriaIndex,
+        titulo: String(
+          categoria?.titulo ?? categoria?.nome ?? `Categoria ${categoriaIndex + 1}`,
+        ).trim(),
+        equipes: Array.isArray(categoria?.equipes)
+          ? categoria.equipes.map((equipe: any, equipeIndex: number) => ({
+              id: equipe?.id ?? equipeIndex,
+              nome: String(
+                equipe?.nome ?? equipe?.equipe ?? `Equipe ${equipeIndex + 1}`,
+              ).trim(),
+              atletas: Array.isArray(equipe?.atletas)
+                ? equipe.atletas
+                    .map((atleta: any, atletaIndex: number) =>
+                      normalizarAtleta(atleta, atletaIndex),
+                    )
+                    .filter((atleta: Atleta | null): atleta is Atleta => atleta !== null)
+                : [],
+            }))
+          : [],
+      }),
+    );
+
     return {
-      id: `equipe-${index}`,
-      nome: `Equipe ${index + 1}`,
-      duplas: [],
+      categorias: ordenarCategorias(categorias),
     };
   }
 
-  const obj = item as Record<string, unknown>;
+  const interno = payload?.data ?? payload?.dados ?? payload?.result;
 
-  const duplasRaw = arraySeguro<unknown>(obj.duplas || obj.doubles || obj.pares);
-  const atletasRaw = arraySeguro<Record<string, unknown>>(obj.atletas || obj.jogadores || obj.players);
+  if (interno && interno !== payload) {
+    return normalizarRelacao(interno);
+  }
 
-  return {
-    id: texto(obj.id) || `equipe-${index}`,
-    nome:
-      texto(obj.nome) ||
-      texto(obj.equipe) ||
-      texto(obj.clube) ||
-      texto(obj.cidade) ||
-      `Equipe ${index + 1}`,
-    cidade: texto(obj.cidade || obj.city),
-    clube: texto(obj.clube || obj.club),
-    categoria: texto(obj.categoria || obj.category || obj.chave),
-    duplas: duplasRaw.map(normalizarDupla),
-    atletas: atletasRaw
-      .map((atleta) => ({
-        nome: texto(atleta.nome || atleta.name),
-      }))
-      .filter((atleta) => atleta.nome),
-  };
+  return { categorias: [] };
 }
 
-function extrairEquipesDaApi(payload: unknown): Equipe[] {
-  return pegarArrayPrincipal(payload)
-    .map(normalizarEquipe)
-    .filter((equipe) => equipe.nome);
+function TabelaCategoria({ categoria }: { categoria: Categoria }) {
+  return (
+    <section>
+      <h1 className="mb-12 text-center text-xl font-bold uppercase tracking-widest text-black md:text-2xl">
+        {categoria.titulo}
+      </h1>
+
+      <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        {categoria.equipes.map((equipe, equipeIndex) => (
+          <div key={equipe.id ?? equipeIndex} className="flex flex-col">
+            <h3 className="mb-2 text-center text-sm font-bold uppercase text-[#e31818] md:text-[15px]">
+              {equipe.nome}
+            </h3>
+
+            <div className="flex min-h-[100px] flex-col border-[1.5px] border-black bg-white">
+              {equipe.atletas.length > 0 ? (
+                equipe.atletas.map((atleta, atletaIndex) => {
+                  const isCaptain = atleta.nome.includes("(C)");
+
+                  return (
+                    <div
+                      key={atleta.id ?? `${equipeIndex}-${atletaIndex}`}
+                      className="border-b border-black px-2 py-2.5 text-center last:border-b-0"
+                    >
+                      <span
+                        className={`text-[15px] text-black ${
+                          isCaptain ? "font-bold" : ""
+                        }`}
+                      >
+                        {atleta.nome}
+                      </span>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="px-2 py-4 text-center text-sm text-stone-400">
+                  Nenhum atleta cadastrado.
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
-function atletasDaDupla(dupla: Dupla): string {
-  const nomesArray = arraySeguro<Atleta>(dupla.atletas)
-    .map((atleta) => texto(atleta.nome))
-    .filter(Boolean);
-
-  if (nomesArray.length) return nomesArray.join(" / ");
-
-  return [texto(dupla.jogador1), texto(dupla.jogador2)].filter(Boolean).join(" / ");
-}
-
-function quantidadeAtletas(equipe: Equipe): number {
-  const porDupla = arraySeguro<Dupla>(equipe.duplas).reduce((total, dupla) => {
-    const jogadores = atletasDaDupla(dupla);
-    return total + (jogadores ? jogadores.split("/").filter((nome) => nome.trim()).length : 0);
-  }, 0);
-
-  if (porDupla > 0) return porDupla;
-
-  return arraySeguro<Atleta>(equipe.atletas).length;
-}
-
-export default function RelacaoAtletasPageProps({ onBack }: RelacaoAtletasPageProps) {
-  const [equipesApi, setEquipesApi] = useState<Equipe[]>([]);
-  const [usarExemplo, setUsarExemplo] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState("");
-  const [busca, setBusca] = useState("");
-  const [categoriaAtiva, setCategoriaAtiva] = useState("todos");
+export default function RelacaoAtletasPage({
+  onBack,
+}: RelacaoAtletasPageProps) {
+  const [dados, setDados] = useState<Relacao | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [categoriaAtual, setCategoriaAtual] =
+    useState<CategoriaSelecionada>(0);
 
   useEffect(() => {
     let ativo = true;
 
-    async function carregarEquipes() {
+    const fetchRelacao = async () => {
       setLoading(true);
-      setErro("");
 
       try {
-        const res = await fetch(API_EQUIPES, {
+        const response = await fetch(API_RELACAO, {
           headers: {
             Accept: "application/json",
           },
         });
 
-        if (!res.ok) {
-          throw new Error(`Erro ${res.status}`);
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}`);
         }
 
-        const data = await res.json();
-        const equipes = extrairEquipesDaApi(data);
+        const json = await response.json();
+        const relacaoApi = normalizarRelacao(json);
 
         if (!ativo) return;
 
-        if (equipes.length) {
-          setEquipesApi(equipes);
-          setUsarExemplo(false);
+        // A API pode responder 200 e ainda trazer só a categoria, sem equipes/atletas.
+        // Nesse caso, consideramos que não há conteúdo útil e usamos o mock completo.
+        if (relacaoTemConteudo(relacaoApi)) {
+          setDados(relacaoApi);
         } else {
-          setEquipesApi(EQUIPES_EXEMPLO);
-          setUsarExemplo(true);
+          console.warn(
+            "API retornou sem equipes/atletas. Usando relacaoMock como fallback.",
+          );
+          setDados(normalizarRelacao(relacaoMock));
         }
       } catch (error) {
         if (!ativo) return;
 
-        setEquipesApi(EQUIPES_EXEMPLO);
-        setUsarExemplo(true);
-        setErro("A API ainda não retornou equipes cadastradas. Exibindo exemplo.");
+        console.warn("API falhou, usando dados de mock (fallback).", error);
+        setDados(normalizarRelacao(relacaoMock));
       } finally {
         if (ativo) setLoading(false);
       }
-    }
+    };
 
-    carregarEquipes();
+    fetchRelacao();
 
     return () => {
       ativo = false;
     };
   }, []);
 
-  const categorias = useMemo(() => {
-    const lista = equipesApi
-      .map((equipe) => texto(equipe.categoria))
-      .filter(Boolean);
+  if (loading) {
+    return (
+      <div className="p-20 text-center text-stone-500">
+        Carregando relação de atletas...
+      </div>
+    );
+  }
 
-    return ["todos", ...Array.from(new Set(lista))];
-  }, [equipesApi]);
+  const categorias = dados?.categorias ?? [];
 
-  const equipesFiltradas = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
+  if (!categorias.length) {
+    return (
+      <div className="min-h-screen bg-white px-4 py-10 md:px-8">
+        <div className="mx-auto max-w-7xl">
+          <button
+            onClick={onBack}
+            className="mb-8 flex items-center font-semibold text-[#c93b2b] transition hover:opacity-80"
+          >
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Voltar para a Home
+          </button>
 
-    return equipesApi.filter((equipe) => {
-      const categoriaOk =
-        categoriaAtiva === "todos" || texto(equipe.categoria) === categoriaAtiva;
+          <div className="p-20 text-center text-stone-500">
+            Nenhuma categoria encontrada.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-      const conteudo = [
-        equipe.nome,
-        equipe.cidade,
-        equipe.clube,
-        equipe.categoria,
-        ...arraySeguro<Dupla>(equipe.duplas).flatMap((dupla) => [
-          dupla.nome,
-          dupla.jogador1,
-          dupla.jogador2,
-          atletasDaDupla(dupla),
-        ]),
-        ...arraySeguro<Atleta>(equipe.atletas).map((atleta) => atleta.nome),
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      const buscaOk = !termo || conteudo.includes(termo);
-
-      return categoriaOk && buscaOk;
-    });
-  }, [equipesApi, categoriaAtiva, busca]);
+  const categoriasExibidas =
+    categoriaAtual === "todos"
+      ? categorias
+      : categorias[categoriaAtual]
+        ? [categorias[categoriaAtual]]
+        : [];
 
   return (
-    <div className="min-h-screen bg-[#FCFAF2] px-4 py-8 md:px-8">
+    <div className="min-h-screen bg-white px-4 py-10 md:px-8">
       <div className="mx-auto max-w-7xl">
         <button
           onClick={onBack}
@@ -307,175 +279,44 @@ export default function RelacaoAtletasPageProps({ onBack }: RelacaoAtletasPagePr
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
+          transition={{ duration: 0.4 }}
         >
-          <div className="mb-8 text-center">
-            <span className="text-xs font-black uppercase tracking-[0.25em] text-[#c93b2b]">
-              Nippon Sorocaba 2026
-            </span>
-
-            <h1 className="mt-2 font-serif text-3xl font-black uppercase text-stone-900 md:text-4xl">
-              Relação de Equipes e Atletas
-            </h1>
-
-            <p className="mx-auto mt-3 max-w-2xl text-sm font-medium leading-relaxed text-stone-600">
-              Consulte as cidades/clubes cadastrados, suas duplas e seus atletas.
-            </p>
-          </div>
-
-          <div className="mb-6 grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_auto]">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-
-              <input
-                value={busca}
-                onChange={(event) => setBusca(event.target.value)}
-                placeholder="Buscar por equipe, cidade, dupla ou atleta..."
-                className="w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-semibold text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-[#c93b2b] focus:ring-1 focus:ring-[#c93b2b]"
-              />
-            </div>
-
-            <div className="flex gap-2 overflow-x-auto">
-              {categorias.map((categoria) => (
-                <button
-                  key={categoria}
-                  onClick={() => setCategoriaAtiva(categoria)}
-                  className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-black uppercase transition ${
-                    categoriaAtiva === categoria
-                      ? "bg-stone-900 text-white shadow-sm"
-                      : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-                  }`}
-                >
-                  {categoria === "todos" ? "Todos" : categoria}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="mb-6 rounded-xl bg-blue-50 px-4 py-3 text-center text-sm font-bold text-blue-900">
-              Carregando equipes...
-            </div>
-          ) : null}
-
-          {usarExemplo ? (
-            <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-              <div>
-                Exemplo de visualização. Quando a API tiver equipes cadastradas, esses dados
-                demonstrativos somem automaticamente.
-                {erro ? <span className="block text-xs font-semibold opacity-80">{erro}</span> : null}
-              </div>
-            </div>
-          ) : null}
-
-          {equipesFiltradas.length ? (
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {equipesFiltradas.map((equipe, index) => {
-                const duplas = arraySeguro<Dupla>(equipe.duplas);
-                const atletasSoltos = arraySeguro<Atleta>(equipe.atletas);
-
-                return (
-                  <article
-                    key={`${equipe.id || equipe.nome}-${index}`}
-                    className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                  >
-                    <div className="border-b border-stone-100 bg-stone-50 px-5 py-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h2 className="text-lg font-black uppercase leading-tight text-stone-900">
-                            {equipe.nome}
-                          </h2>
-
-                          {(equipe.cidade || equipe.clube) ? (
-                            <div className="mt-1 flex items-center gap-1 text-xs font-bold text-stone-500">
-                              <MapPin className="h-3.5 w-3.5" />
-                              <span>{equipe.cidade || equipe.clube}</span>
-                            </div>
-                          ) : null}
-                        </div>
-
-                        {equipe.categoria ? (
-                          <span className="rounded-full bg-[#c93b2b]/10 px-3 py-1 text-[10px] font-black uppercase text-[#c93b2b]">
-                            {equipe.categoria}
-                          </span>
-                        ) : null}
-                      </div>
-
-                      <div className="mt-4 grid grid-cols-2 gap-2">
-                        <div className="rounded-xl bg-white px-3 py-2 text-center">
-                          <div className="flex items-center justify-center gap-1 text-xs font-black uppercase text-stone-500">
-                            <Trophy className="h-3.5 w-3.5" />
-                            Duplas
-                          </div>
-                          <strong className="text-lg font-black text-stone-900">
-                            {duplas.length}
-                          </strong>
-                        </div>
-
-                        <div className="rounded-xl bg-white px-3 py-2 text-center">
-                          <div className="flex items-center justify-center gap-1 text-xs font-black uppercase text-stone-500">
-                            <Users className="h-3.5 w-3.5" />
-                            Atletas
-                          </div>
-                          <strong className="text-lg font-black text-stone-900">
-                            {quantidadeAtletas(equipe)}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 p-5">
-                      {duplas.length ? (
-                        duplas.map((dupla, duplaIndex) => (
-                          <div
-                            key={`${dupla.id || dupla.nome}-${duplaIndex}`}
-                            className="rounded-xl border border-stone-100 bg-[#FCFAF2] px-4 py-3"
-                          >
-                            <div className="text-xs font-black uppercase tracking-wide text-[#8a6512]">
-                              {dupla.nome || `Dupla ${duplaIndex + 1}`}
-                            </div>
-
-                            <div className="mt-1 text-sm font-bold leading-relaxed text-stone-800">
-                              {atletasDaDupla(dupla) || "Atletas a definir"}
-                            </div>
-                          </div>
-                        ))
-                      ) : atletasSoltos.length ? (
-                        <div className="rounded-xl border border-stone-100 bg-[#FCFAF2] px-4 py-3">
-                          <div className="text-xs font-black uppercase tracking-wide text-[#8a6512]">
-                            Atletas
-                          </div>
-
-                          <div className="mt-1 text-sm font-bold leading-relaxed text-stone-800">
-                            {atletasSoltos.map((atleta) => atleta.nome).join(" / ")}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="rounded-xl border border-dashed border-stone-200 px-4 py-6 text-center text-sm font-bold text-stone-400">
-                          Nenhuma dupla cadastrada.
-                        </div>
-                      )}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white px-4 py-12 text-center">
-              <strong className="block text-stone-500">Nenhuma equipe encontrada.</strong>
-
+          {/* Categorias na ordem 120, 130, 140, 150, 160 e TODOS no final */}
+          <div className="mb-10 flex flex-wrap justify-center gap-2">
+            {categorias.map((cat, index) => (
               <button
-                onClick={() => {
-                  setBusca("");
-                  setCategoriaAtiva("todos");
-                }}
-                className="mt-3 text-xs font-black uppercase text-[#c93b2b] hover:underline"
+                key={cat.id ?? index}
+                onClick={() => setCategoriaAtual(index)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  categoriaAtual === index
+                    ? "bg-[#c93b2b] text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
               >
-                Limpar filtros
+                {nomeCategoria(cat.titulo)}
               </button>
-            </div>
-          )}
+            ))}
+
+            <button
+              onClick={() => setCategoriaAtual("todos")}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                categoriaAtual === "todos"
+                  ? "bg-[#c93b2b] text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Todos
+            </button>
+          </div>
+
+          <div className="space-y-20">
+            {categoriasExibidas.map((categoria, index) => (
+              <TabelaCategoria
+                key={categoria.id ?? `${categoria.titulo}-${index}`}
+                categoria={categoria}
+              />
+            ))}
+          </div>
         </motion.div>
       </div>
     </div>

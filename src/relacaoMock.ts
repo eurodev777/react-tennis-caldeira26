@@ -3,7 +3,7 @@
 export const relacaoMock = {
   categorias: [
     {
-      titulo: "RELAÇÃO DOS ATLETAS - PRATA FEMININO",
+      titulo: "RELAÇÃO DOS ATLETAS - DUPLAS 120 ANOS",
       equipes: [
         {
           nome: "NIPPON SOROCABA I",
@@ -98,7 +98,7 @@ export const relacaoMock = {
       ],
     },
     {
-      titulo: "RELAÇÃO DOS ATLETAS - OURO FEMININO",
+      titulo: "RELAÇÃO DOS ATLETAS - DUPLAS 130 ANOS",
       equipes: [
         {
           nome: "COOPER LONGWAY",
@@ -171,7 +171,7 @@ export const relacaoMock = {
       ],
     },
     {
-      titulo: "RELAÇÃO DOS ATLETAS - OURO MASCULINO",
+      titulo: "RELAÇÃO DOS ATLETAS - DUPLAS 140 ANOS",
       equipes: [
         {
           nome: "COOPER",
@@ -227,7 +227,7 @@ export const relacaoMock = {
       ],
     },
     {
-      titulo: "RELAÇÃO DOS ATLETAS - PRATA MASCULINO",
+      titulo: "RELAÇÃO DOS ATLETAS - DUPLAS 150 ANOS",
       equipes: [
         {
           nome: "NIPPON SOROCABA",
@@ -313,7 +313,7 @@ export const relacaoMock = {
       ],
     },
     {
-      titulo: "RELAÇÃO DOS ATLETAS - BRONZE MASCULINO",
+      titulo: "RELAÇÃO DOS ATLETAS - DUPLAS 160 ANOS",
       equipes: [
         {
           nome: "COOPER I",
