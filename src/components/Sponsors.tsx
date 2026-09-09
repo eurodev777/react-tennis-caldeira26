@@ -133,7 +133,7 @@ export default function Sponsors({ onSelectItem }: SponsorsProps) {
             {/* Direita: 3 Cartões lado a lado */}
             <div className="flex flex-wrap justify-center gap-3">
               {BIRUGUMI_SPONSORS?.map((sponsor) => (
-                <div className="w-[160px] md:w-[180px]">
+                <div className="w-[130px] md:w-[150px]">
                   <SupporterCard
                     key={sponsor.id}
                     supporter={sponsor}

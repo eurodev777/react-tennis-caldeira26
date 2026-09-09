@@ -43,6 +43,7 @@ import brilho from './assets/expositores/brilho.jpg'
 import longway from './assets/expositores/longway.png'
 import brahma from './assets/expositores/brahma.png'
 import picole from './assets/expositores/picole-joao.jpeg'
+import shiki from './assets/expositores/shiki.png'
 import italiana from './assets/expositores/italiana.jpeg'
 import manaki from './assets/expositores/manaki.jpeg'
 
@@ -110,6 +111,11 @@ export const BIRUGUMI_SPONSORS = [
     id: 'biru-dai',
     name: 'Dai Alimentos',
     logoText: dai,
+  },
+    {
+    id: 'biru-shiki',
+    name: 'Shiki',
+    logoText: shiki,
   },
 ];
 
