@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import { motion } from "motion/react";
-
 import { relacaoMock } from "../relacaoMock";
 
 interface RelacaoAtletasPageProps {
@@ -19,19 +18,18 @@ type Categoria = {
 };
 
 type FaixaEtaria = 120 | 130 | 140 | 150 | 160;
+
 type CategoriaSelecionada = FaixaEtaria | "todos";
 
 const FAIXAS: FaixaEtaria[] = [120, 130, 140, 150, 160];
 
 function pegarIdade(titulo: string): number | null {
   const match = titulo.match(/\b(120|130|140|150|160)\b/);
-
   return match ? Number(match[1]) : null;
 }
 
 function pegarLetra(titulo: string): string | null {
   const match = titulo.match(/["']?([A-F])["']?\s*$/i);
-
   return match ? match[1].toUpperCase() : null;
 }
 
@@ -58,51 +56,74 @@ function ordenarCategorias(categorias: Categoria[]) {
   });
 }
 
+function totalAtletas(categoria: Categoria) {
+  return categoria.equipes.reduce(
+    (total, equipe) => total + equipe.atletas.length,
+    0,
+  );
+}
+
 function TabelaCategoria({ categoria }: { categoria: Categoria }) {
   return (
-    <section className="w-full">
-      {/* Título da tabela */}
-      <h2 className="mb-1.5 text-center text-[13px] font-bold text-black md:text-[14px]">
-        {categoria.titulo}
-      </h2>
+    <section className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      {/* Título do card */}
+      <header className="flex items-center justify-between gap-3 border-b border-gray-100 bg-white px-4 py-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c93b2b]/10 text-[#c93b2b]">
+            <Users className="h-4 w-4" />
+          </span>
 
-      {/* Tabela */}
-      <div className="overflow-hidden border border-black bg-white">
-        <table className="w-full table-fixed border-collapse">
-          <tbody>
-            {categoria.equipes.map((equipe, equipeIndex) => (
-              <tr
-                key={`${categoria.titulo}-${equipe.nome}-${equipeIndex}`}
-                className="border-b border-black last:border-b-0"
-              >
-                {/* COLUNA 1 - EQUIPE */}
-                <td className="w-[36%] border-r border-black px-2 py-1.5 align-middle text-center text-[11px] leading-tight text-black md:text-[12px]">
-                  {equipe.nome}
-                </td>
+          <div className="min-w-0">
+            <h2 className="truncate text-[13px] font-bold uppercase text-black md:text-[14px]">
+              {categoria.titulo}
+            </h2>
 
-                {/* COLUNA 2 - ATLETAS */}
-                <td className="w-[64%] px-2 py-1 align-middle text-center">
-                  {equipe.atletas.length > 0 ? (
-                    <div className="flex flex-col">
-                      {equipe.atletas.map((atleta, atletaIndex) => (
-                        <span
-                          key={`${atleta}-${atletaIndex}`}
-                          className="block text-[11px] leading-[1.35] text-black md:text-[12px]"
-                        >
-                          {atleta}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-[11px] text-gray-400">
-                      Sem atletas
+            <p className="text-[10px] font-semibold text-gray-400">
+              {totalAtletas(categoria)} atletas cadastrados
+            </p>
+          </div>
+        </div>
+
+        <span className="shrink-0 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-[10px] font-bold uppercase text-gray-600">
+          {categoria.equipes.length} duplas
+        </span>
+      </header>
+
+      {/* Linhas */}
+      <div className="divide-y divide-gray-100">
+        {categoria.equipes.map((equipe, equipeIndex) => (
+          <div
+            key={`${categoria.titulo}-${equipe.nome}-${equipeIndex}`}
+            className="grid grid-cols-[42px_36%_1fr] items-center gap-2 px-3 py-3 transition hover:bg-gray-50"
+          >
+            <div className="flex justify-center">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-[11px] font-bold text-gray-600">
+                {equipeIndex + 1}
+              </span>
+            </div>
+
+            <div className="border-r border-gray-100 pr-2 text-center text-[11px] font-bold uppercase leading-tight text-black md:text-[12px]">
+              {equipe.nome}
+            </div>
+
+            <div className="px-1 text-center">
+              {equipe.atletas.length > 0 ? (
+                <div className="flex flex-col">
+                  {equipe.atletas.map((atleta, atletaIndex) => (
+                    <span
+                      key={`${atleta}-${atletaIndex}`}
+                      className="block text-[11px] font-medium leading-[1.35] text-black md:text-[12px]"
+                    >
+                      {atleta}
                     </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-[11px] text-gray-400">Sem atletas</span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
