@@ -68,6 +68,21 @@ export const EXHIBITORS = [
     name: 'Shimi Dorayaki House',
     logoText: shimi,
   },
+    {
+    id: 'exp-katia',
+    name: 'Kátia Mayumi',
+    logoText: katia,
+  },
+  {
+    id: 'exp-violet',
+    name: 'Violet Doces',
+    logoText: violet,
+  },
+  {
+    id: 'exp-comfort',
+    name: 'TG Comfort',
+    logoText: comfort,
+  },
   {
     id: 'exp-alice',
     name: 'Alice Furuno',
@@ -270,15 +285,6 @@ export const SUPPORTERS = [
     whatsapp: '+5515992014621',
     phone: '(15) 3231-8214',
     description: 'Desde 1981'
-  },
-  {
-    id: 'katia-mayumi',
-    name: 'Katia Mayumi',
-    logoType: 'text',
-    logoText: katia,
-    instagram: 'katia_mayumi_tenis',
-    whatsapp: '+5515991760021',
-    description: 'Orientação para Postura - Quick Massage'
   },
   {
     id: 'prosteel',

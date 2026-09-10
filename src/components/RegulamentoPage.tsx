@@ -460,7 +460,8 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
                 </span>
 
                 <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  17 de Setembro de 2026 (quinta-feira): início às 16h, somente Duplas 150 / 160 anos. 18 de Setembro de 2026 (sexta-feira): início às 7h. 19 de Setembro de 2026 (sábado): início às 7h.<br />20 de Setembro de 2026 (domingo): finais das chaves e cerimônia de encerramento, com início às 7h e encerramento às 13h30.
+                  17 de Setembro de 2026 (quinta-feira): início às 16h, somente Duplas 150 / 160 anos.
+                  <br />18 de Setembro de 2026 (sexta-feira): início às 7h. 19 de Setembro de 2026 (sábado): início às 7h.<br />20 de Setembro de 2026 (domingo): finais das chaves e cerimônia de encerramento, com início às 7h e encerramento às 13h30.
                 </p>
               </div>
             </div>
@@ -513,7 +514,7 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
                 </span>
 
                 <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  DUPLAS 130 ANOS “A”, “C”, “D” e “E”.
+                  DUPLAS 130 ANOS “A”, “C”, “D”, “E” e “F”.
                 </p>
               </div>
 
@@ -646,7 +647,7 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
                 </span>
 
                 <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Duplas 120 Anos “A”, 130 Anos “A”, 140 Anos “A” e 150 Anos “A”:
+                  Duplas 120 Anos “A”, 130 Anos “A”, 140 Anos “C” e 150 Anos “A”:
                   <br />
                   <br />
                   chaves com 4 duplas no sistema todos contra todos (round-robin). As três melhores duplas classificadas sagram-se Campeã, Vice-Campeã e 3º Lugar, respectivamente.
@@ -659,7 +660,7 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
                 </span>
 
                 <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Duplas 120 Anos “B”, 130 Anos “C”, 140 Anos “C” e 160 Anos:
+                  Duplas 120 Anos “B”, 130 Anos “C”, 140 Anos “A” e 160 Anos:
                   <br />chave com 6 duplas, dividida em 2 grupos com 3 duplas cada. Classificam-se para a Final Principal os primeiros colocados de cada grupo. Classificam-se para a Final da Repescagem os segundos colocados de cada grupo.
                 </p>
               </div>
@@ -911,7 +912,7 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
                 </span>
 
                 <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Troféus para as duplas Campeãs, Vice-Campeãs e Campeãs da Repescagem nas categorias: Duplas 120 “B”, “C”, “D”, “E” e “F”; Duplas 130 “C”, “D” e “E”, “F”; Duplas 140 “C”, “D”, “E”, “F” e “G”; Duplas 150 “B” e “C”; e Duplas 160.
+                  Troféus para as duplas Campeãs, Vice-Campeãs e Campeãs da Repescagem nas categorias: Duplas 120 “B”, “C”, “D”, “E” e “F”; Duplas 130 “C”, “D” e “E”, “F”; Duplas 140 “A”, “D”, “E”, “F” e “G”; Duplas 150 “B” e “C”; e Duplas 160.
                 </p>
               </div>
 
@@ -921,7 +922,7 @@ export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
                 </span>
 
                 <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Troféus para as duplas Campeãs, Vice-Campeãs e 3º Lugar nas categorias: Duplas 120 “A”, Duplas 130 “A”, Duplas 140 “A” e Duplas 150 “A”.
+                  Troféus para as duplas Campeãs, Vice-Campeãs e 3º Lugar nas categorias: Duplas 120 “A”, Duplas 130 “A”, Duplas 140 “C” e Duplas 150 “A”.
                 </p>
               </div>
 

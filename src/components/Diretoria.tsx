@@ -76,12 +76,12 @@ export default function Diretoria() {
                 </div>
 
                 {/* Director Name */}
-                <h4 className="font-sans text-sm font-bold text-stone-900 line-clamp-1">
+                <h4 className="font-sans text-sm font-bold text-stone-900">
                   {director.name}
                 </h4>
                 
                 {/* Director Role */}
-                <p className="mt-1 text-xs font-semibold text-gold-dark tracking-wide uppercase line-clamp-1">
+                <p className="mt-1 lg:text-xs text-[10px] font-semibold text-gold-dark tracking-wide uppercase">
                   {director.role}
                 </p>
 
