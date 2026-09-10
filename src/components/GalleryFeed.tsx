@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_URL = "https://sothink.com.br/centenario26/api/v2/nipponimages"; // MUDE AQUI
+const API_URL = "https://sothink.com.br/centenario26/api/v2/nippon"; // MUDE AQUI
 
 interface ImagemGaleria {
   id: number;
@@ -13,7 +13,7 @@ export default function GalleryFeed() {
   const [slideAtual, setSlideAtual] = useState(0);
 
   useEffect(() => {
-    fetch(`${API_URL}/listar`)
+    fetch(`${API_URL}/list-images`)
       .then((res) => res.json())
       .then((data) => {
         if (data.sucesso) setImagens(data.dados);
