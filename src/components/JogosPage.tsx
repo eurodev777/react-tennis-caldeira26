@@ -25,6 +25,14 @@ type Dupla = {
   jogador2?: string;
 };
 
+type SetJogo = {
+  id?: number | string;
+  jogo_id?: number | string;
+  numero_set?: number | string;
+  pontos_dupla1?: number | string | null;
+  pontos_dupla2?: number | string | null;
+};
+
 type Jogo = {
   id: number | string;
   tipo_chave?: "principal" | "repescagem" | "final" | string;
@@ -49,12 +57,14 @@ type Jogo = {
   placar1?: string | number | null;
   placar2?: string | number | null;
   vencedor_nome?: string;
+  sets?: SetJogo[];
 };
 
 type DetalhesChave = {
   torneio?: Torneio;
   duplas?: Dupla[];
   jogos?: Jogo[];
+  sets?: SetJogo[];
 };
 
 type JogosPageProps = {
@@ -665,62 +675,260 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
   const lado1 = dadosLado(jogo, 1, duplas);
   const lado2 = dadosLado(jogo, 2, duplas);
 
+  // Começa usando os sets que já possam ter vindo no /detalhes,
+  // mas o botão SETS SEMPRE aparece e também consegue buscar por jogo_id.
+  const [sets, setSets] = useState<SetJogo[]>(() =>
+    [...(jogo.sets || [])].sort(
+      (a, b) => Number(a.numero_set || 0) - Number(b.numero_set || 0)
+    )
+  );
+  const [mostrarSets, setMostrarSets] = useState(false);
+  const [carregandoSets, setCarregandoSets] = useState(false);
+  const [setsCarregados, setSetsCarregados] = useState((jogo.sets || []).length > 0);
+  const [erroSets, setErroSets] = useState("");
+
+  const carregarSets = async () => {
+    // Se já carregou (mesmo que a lista esteja vazia), não consulta de novo.
+    if (setsCarregados || carregandoSets) return;
+
+    setCarregandoSets(true);
+    setErroSets("");
+
+    try {
+      const data = await apiChaves<SetJogo[]>("listar", {
+        tabela: "sets",
+        jogo_id: jogo.id,
+      });
+
+      const lista = Array.isArray(data) ? data : [];
+      lista.sort(
+        (a, b) => Number(a.numero_set || 0) - Number(b.numero_set || 0)
+      );
+
+      setSets(lista);
+      setSetsCarregados(true);
+    } catch (error) {
+      setErroSets(
+        error instanceof Error ? error.message : "Erro ao carregar os sets"
+      );
+    } finally {
+      setCarregandoSets(false);
+    }
+  };
+
+  const abrirSets = () => {
+    setMostrarSets(true);
+    void carregarSets();
+  };
+
+  const placarCalculado = useMemo(() => {
+    let dupla1 = 0;
+    let dupla2 = 0;
+    let temSetPreenchido = false;
+
+    sets.forEach((set) => {
+      const valor1 = set.pontos_dupla1;
+      const valor2 = set.pontos_dupla2;
+
+      if (
+        valor1 === null || valor1 === undefined || valor1 === "" ||
+        valor2 === null || valor2 === undefined || valor2 === ""
+      ) {
+        return;
+      }
+
+      const p1 = Number(valor1);
+      const p2 = Number(valor2);
+
+      if (!Number.isFinite(p1) || !Number.isFinite(p2)) return;
+
+      temSetPreenchido = true;
+      if (p1 > p2) dupla1++;
+      else if (p2 > p1) dupla2++;
+    });
+
+    return { dupla1, dupla2, temSetPreenchido };
+  }, [sets]);
+
+  const temPlacarApi =
+    jogo.placar1 !== null &&
+    jogo.placar1 !== undefined &&
+    jogo.placar1 !== "" &&
+    jogo.placar2 !== null &&
+    jogo.placar2 !== undefined &&
+    jogo.placar2 !== "";
+
+  // Prioriza placar salvo na API. Se estiver vazio, calcula pelos sets carregados.
+  const placar1 = temPlacarApi
+    ? String(jogo.placar1)
+    : placarCalculado.temSetPreenchido
+      ? String(placarCalculado.dupla1)
+      : "–";
+
+  const placar2 = temPlacarApi
+    ? String(jogo.placar2)
+    : placarCalculado.temSetPreenchido
+      ? String(placarCalculado.dupla2)
+      : "–";
+
   const nomesBox = (lado: ReturnType<typeof dadosLado>) => {
     const jogadores = lado.jogadores
       .split("/")
       .map((nome) => nome.trim())
       .filter(Boolean);
 
-    if (jogadores.length) {
-      return jogadores;
-    }
-
-    /*
-     * Para jogos futuros, tipo VENCEDOR JG.120E1,
-     * ainda precisa mostrar o texto de definição.
-     */
+    if (jogadores.length) return jogadores;
     return [lado.auxiliar || lado.clube || "A definir"];
   };
 
   return (
-    <article className="jp-card" style={style}>
-      <div className="jp-match">
-        <div className="jp-team">
-          {nomesBox(lado1).map((nome, index) => (
-            <span key={`${nome}-${index}`} className="jp-player-name">
-              {nome}
-            </span>
-          ))}
-        </div>
+    <>
+      <article className="jp-card" style={style}>
+        <div className="jp-match">
+          <div className="jp-team">
+            <div className="jp-team-names">
+              {nomesBox(lado1).map((nome, index) => (
+                <span key={`${nome}-${index}`} className="jp-player-name">
+                  {nome}
+                </span>
+              ))}
+            </div>
 
-        <div className="jp-middle">
-          <div className="jp-x">X</div>
+            <strong
+              className={`jp-total-score ${placar1 === "–" ? "jp-total-score-empty" : ""}`}
+              title="Sets vencidos pela dupla"
+            >
+              {placar1}
+            </strong>
+          </div>
 
-          <div className="jp-meta">
-            <b>{jogo.codigo || "SEM CÓDIGO"}</b>
-            {jogo.data_jogo ? <span>{formatarData(jogo.data_jogo)}</span> : null}
-            {jogo.status === "finalizado" && (jogo.placar1 || jogo.placar2) ? (
-              <em>{jogo.placar1 ?? 0} x {jogo.placar2 ?? 0}</em>
-            ) : null}
+          <div className="jp-middle">
+            <div className="jp-x">X</div>
+
+            <div className="jp-meta">
+              <b>{jogo.codigo || "SEM CÓDIGO"}</b>
+              {jogo.data_jogo ? <span>{formatarData(jogo.data_jogo)}</span> : null}
+
+              <button
+                type="button"
+                className="jp-sets-button"
+                onClick={abrirSets}
+                onMouseEnter={abrirSets}
+                aria-label={`Ver resultados dos sets do jogo ${jogo.codigo || jogo.id}`}
+                title="Passe o mouse ou clique para ver os sets"
+              >
+                SETS
+              </button>
+            </div>
+          </div>
+
+          <div className="jp-team">
+            <div className="jp-team-names">
+              {nomesBox(lado2).map((nome, index) => (
+                <span key={`${nome}-${index}`} className="jp-player-name">
+                  {nome}
+                </span>
+              ))}
+            </div>
+
+            <strong
+              className={`jp-total-score ${placar2 === "–" ? "jp-total-score-empty" : ""}`}
+              title="Sets vencidos pela dupla"
+            >
+              {placar2}
+            </strong>
           </div>
         </div>
+      </article>
 
-        <div className="jp-team">
-          {nomesBox(lado2).map((nome, index) => (
-            <span key={`${nome}-${index}`} className="jp-player-name">
-              {nome}
-            </span>
-          ))}
+      {mostrarSets ? (
+        <div
+          className="jp-sets-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Sets do jogo ${jogo.codigo || jogo.id}`}
+          onMouseDown={() => setMostrarSets(false)}
+        >
+          <div
+            className="jp-sets-modal"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="jp-sets-modal-head">
+              <div>
+                <span>RESULTADO POR SET</span>
+                <strong>{jogo.codigo || `Jogo ${jogo.id}`}</strong>
+              </div>
+
+              <button
+                type="button"
+                className="jp-sets-close"
+                onClick={() => setMostrarSets(false)}
+                aria-label="Fechar resultados dos sets"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="jp-sets-total">
+              <div>
+                <span>{nomesBox(lado1).join(" / ")}</span>
+                <strong>{placar1}</strong>
+              </div>
+
+              <b>PLACAR TOTAL</b>
+
+              <div>
+                <span>{nomesBox(lado2).join(" / ")}</span>
+                <strong>{placar2}</strong>
+              </div>
+            </div>
+
+            <div className="jp-sets-list">
+              {carregandoSets ? (
+                <div className="jp-sets-message">Carregando sets...</div>
+              ) : erroSets ? (
+                <div className="jp-sets-message jp-sets-message-error">{erroSets}</div>
+              ) : sets.length === 0 ? (
+                <div className="jp-sets-message">Nenhum set lançado para este jogo.</div>
+              ) : (
+                sets.map((set, index) => (
+                  <div
+                    className="jp-set-row"
+                    key={String(set.id ?? `${jogo.id}-${set.numero_set ?? index}`)}
+                  >
+                    <span>SET {set.numero_set || index + 1}</span>
+                    <strong>{set.pontos_dupla1 ?? "-"}</strong>
+                    <i>×</i>
+                    <strong>{set.pontos_dupla2 ?? "-"}</strong>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      ) : null}
+    </>
   );
 }
 
 function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
   const duplas = detalhes.duplas || [];
-  const jogos = detalhes.jogos || [];
+  const jogosOriginais = detalhes.jogos || [];
+  const setsGerais = detalhes.sets || [];
   const torneio = detalhes.torneio;
+
+  const jogos = useMemo(() => {
+    if (!setsGerais.length) return jogosOriginais;
+
+    return jogosOriginais.map((jogo) => {
+      if (jogo.sets?.length) return jogo;
+
+      return {
+        ...jogo,
+        sets: setsGerais.filter((set) => String(set.jogo_id) === String(jogo.id)),
+      };
+    });
+  }, [jogosOriginais, setsGerais]);
 
   const principal = useMemo(
     () => ordenarJogos(jogos.filter((j) => j.tipo_chave === "principal")),
@@ -1071,8 +1279,7 @@ function VisualizadorFotosChaves() {
 
       {!loading && !erro && !imagens.length ? (
         <div className="jp-empty">
-          Nenhuma imagem encontrada na API. Confira se a resposta vem com campo imagem,
-          foto, url, caminho ou image_1.
+          Nenhuma imagem encontrada.
         </div>
       ) : null}
 
@@ -1355,13 +1562,43 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
           min-height: 52px;
           background: #d9d9d9;
           border-radius: 999px;
-          padding: 8px 14px;
+          padding: 8px 48px 8px 14px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           text-align: center;
           overflow: hidden;
+          position: relative;
+        }
+
+        .jp-team-names {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .jp-total-score {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 34px;
+          height: 34px;
+          border-radius: 999px;
+          background: #0f3f7a;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          line-height: 1;
+          font-weight: 950;
+          box-shadow: 0 3px 9px rgba(15, 63, 122, .18);
+        }
+
+        .jp-total-score-empty {
+          background: #a8a29e;
+          box-shadow: none;
         }
 
         .jp-player-name {
@@ -1428,6 +1665,205 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
           font-weight: 950;
         }
 
+        .jp-sets-button {
+          flex: 0 0 auto;
+          border: 0;
+          border-radius: 999px;
+          padding: 5px 9px;
+          background: #0f3f7a;
+          color: #fff;
+          font: inherit;
+          font-size: 10px;
+          font-weight: 950;
+          letter-spacing: .45px;
+          cursor: pointer;
+          box-shadow: 0 3px 8px rgba(15, 63, 122, .18);
+        }
+
+        .jp-sets-button:hover {
+          filter: brightness(1.08);
+        }
+
+        .jp-sets-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 99999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 18px;
+          background: rgba(17, 24, 39, .42);
+          backdrop-filter: blur(3px);
+        }
+
+        .jp-sets-modal {
+          width: min(470px, 100%);
+          max-height: min(640px, calc(100vh - 36px));
+          overflow: auto;
+          background: #fff;
+          border: 1px solid #e7e5e4;
+          border-radius: 18px;
+          box-shadow: 0 24px 70px rgba(17, 24, 39, .24);
+        }
+
+        .jp-sets-modal-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 16px 18px;
+          border-bottom: 1px solid #e7e5e4;
+        }
+
+        .jp-sets-modal-head > div {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+
+        .jp-sets-modal-head span {
+          color: #78716c;
+          font-size: 10px;
+          font-weight: 950;
+          letter-spacing: .8px;
+        }
+
+        .jp-sets-modal-head strong {
+          color: #0f3f7a;
+          font-size: 17px;
+          font-weight: 950;
+        }
+
+        .jp-sets-close {
+          width: 36px;
+          height: 36px;
+          border: 0;
+          border-radius: 999px;
+          background: #f5f5f4;
+          color: #292524;
+          font-size: 24px;
+          line-height: 1;
+          cursor: pointer;
+        }
+
+        .jp-sets-total {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 18px;
+          background: #f8fafc;
+          border-bottom: 1px solid #e7e5e4;
+        }
+
+        .jp-sets-total > div {
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 9px;
+        }
+
+        .jp-sets-total > div:last-child {
+          flex-direction: row-reverse;
+          text-align: right;
+        }
+
+        .jp-sets-total span {
+          min-width: 0;
+          color: #292524;
+          font-size: 11px;
+          line-height: 1.2;
+          font-weight: 900;
+          text-transform: uppercase;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .jp-sets-total strong {
+          flex: 0 0 auto;
+          width: 36px;
+          height: 36px;
+          border-radius: 999px;
+          background: #0f3f7a;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 17px;
+          font-weight: 950;
+        }
+
+        .jp-sets-total > b {
+          color: #78716c;
+          font-size: 9px;
+          font-weight: 950;
+          letter-spacing: .5px;
+          white-space: nowrap;
+        }
+
+        .jp-sets-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          padding: 16px 18px 18px;
+        }
+
+        .jp-sets-message {
+          padding: 18px 14px;
+          border: 1px dashed #d6d3d1;
+          border-radius: 12px;
+          background: #fafaf9;
+          color: #57534e;
+          text-align: center;
+          font-size: 12px;
+          font-weight: 850;
+        }
+
+        .jp-sets-message-error {
+          border-color: #fecaca;
+          background: #fef2f2;
+          color: #b91c1c;
+        }
+
+        .jp-set-row {
+          display: grid;
+          grid-template-columns: 1fr 44px 20px 44px;
+          align-items: center;
+          gap: 6px;
+          min-height: 46px;
+          padding: 7px 10px 7px 14px;
+          background: #fafaf9;
+          border: 1px solid #e7e5e4;
+          border-radius: 12px;
+        }
+
+        .jp-set-row span {
+          color: #57534e;
+          font-size: 12px;
+          font-weight: 950;
+          letter-spacing: .4px;
+        }
+
+        .jp-set-row strong {
+          height: 32px;
+          border-radius: 9px;
+          background: #fff;
+          border: 1px solid #d6d3d1;
+          color: #111827;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 15px;
+          font-weight: 950;
+        }
+
+        .jp-set-row i {
+          color: #a8a29e;
+          text-align: center;
+          font-style: normal;
+          font-weight: 950;
+        }
+
         .jp-empty {
           background: #fff;
           border: 1px dashed #d6d3d1;
@@ -1476,6 +1912,22 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
 
           .jp-scroll-hint {
             display: block;
+          }
+
+          .jp-sets-total {
+            grid-template-columns: 1fr;
+            text-align: center;
+          }
+
+          .jp-sets-total > div,
+          .jp-sets-total > div:last-child {
+            flex-direction: row;
+            justify-content: space-between;
+            text-align: left;
+          }
+
+          .jp-sets-total > b {
+            order: -1;
           }
         }
       `}</style>
