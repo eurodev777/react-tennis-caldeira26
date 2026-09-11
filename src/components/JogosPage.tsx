@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 type JogosModo = "fotos" | "sistema";
 
@@ -781,12 +781,19 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
     return [lado.auxiliar || lado.clube || "A definir"];
   };
 
+  const mostrarEquipe = (lado: ReturnType<typeof dadosLado>) =>
+    Boolean(texto(lado.clube) && texto(lado.jogadores));
+
   return (
     <>
       <article className="jp-card" style={style}>
         <div className="jp-match">
           <div className="jp-team">
             <div className="jp-team-names">
+              {mostrarEquipe(lado1) ? (
+                <span className="jp-team-club">{lado1.clube}</span>
+              ) : null}
+
               {nomesBox(lado1).map((nome, index) => (
                 <span key={`${nome}-${index}`} className="jp-player-name">
                   {nome}
@@ -824,6 +831,10 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
 
           <div className="jp-team">
             <div className="jp-team-names">
+              {mostrarEquipe(lado2) ? (
+                <span className="jp-team-club">{lado2.clube}</span>
+              ) : null}
+
               {nomesBox(lado2).map((nome, index) => (
                 <span key={`${nome}-${index}`} className="jp-player-name">
                   {nome}
@@ -916,6 +927,7 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
   const jogosOriginais = detalhes.jogos || [];
   const setsGerais = detalhes.sets || [];
   const torneio = detalhes.torneio;
+  const boardScrollRef = useRef<HTMLDivElement | null>(null);
 
   const jogos = useMemo(() => {
     if (!setsGerais.length) return jogosOriginais;
@@ -1006,6 +1018,28 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
     };
   }, [repescagem, finais, principal, jogos, duplas, torneio]);
 
+  useEffect(() => {
+    const container = boardScrollRef.current;
+    if (!container || !jogos.length) return;
+
+    const centralizar = () => {
+      const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+      container.scrollLeft = maxScroll / 2;
+    };
+
+    // Aguarda o DOM aplicar a largura calculada da chave antes de posicionar o scroll.
+    const frame1 = requestAnimationFrame(() => {
+      const frame2 = requestAnimationFrame(centralizar);
+      (container as HTMLDivElement & { __jpCenterFrame?: number }).__jpCenterFrame = frame2;
+    });
+
+    return () => {
+      cancelAnimationFrame(frame1);
+      const frame2 = (container as HTMLDivElement & { __jpCenterFrame?: number }).__jpCenterFrame;
+      if (frame2) cancelAnimationFrame(frame2);
+    };
+  }, [calculo.totalWidth, torneio?.id, jogos.length]);
+
   if (!jogos.length) {
     return (
       <div className="jp-empty">
@@ -1015,7 +1049,7 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
   }
 
   return (
-    <div className="jp-board-scroll">
+    <div className="jp-board-scroll" ref={boardScrollRef}>
       <div className="jp-scroll-hint">↔ Arraste para os lados para ver toda a chave</div>
 
       <div
@@ -1575,6 +1609,26 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
         .jp-team-names {
           width: 100%;
           min-width: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 2px;
+        }
+
+        .jp-team-club {
+          display: block;
+          width: 100%;
+          margin-bottom: 1px;
+          color: #0f3f7a;
+          font-size: 10px;
+          line-height: 1.05;
+          font-weight: 950;
+          text-transform: uppercase;
+          letter-spacing: .55px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .jp-total-score {
