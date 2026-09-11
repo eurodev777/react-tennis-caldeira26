@@ -100,7 +100,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
               }`}
             >
               <Users className="h-3.5 w-3.5" />
-              <span>Equipes</span>
+              <span>Duplas</span>
             </button>
 
             {/* Botão TABELAS */}
@@ -211,7 +211,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                 }`}
               >
                 <Users className="h-4 w-4" />
-                <span>Equipes</span>
+                <span>Duplas</span>
               </button>
               {/* Botão EQUIPES (Mobile) */}
               <button
