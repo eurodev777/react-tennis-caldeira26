@@ -93,7 +93,6 @@ const CARD_W = 355;
 const CARD_H = 184;
 const GAP_COL = 36;
 const GAP_SECAO = 44;
-const HEADER_H = 42;
 const BOARD_TOP = 72;
 const GROUP_TITLE_H = 34;
 
@@ -786,39 +785,39 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
 
   return (
     <>
-      <article className="jp-card" style={style}>
-        <div className="jp-match">
-          <div className="jp-team">
-            <div className="jp-team-names">
+      <article className="absolute z-[5] overflow-hidden rounded-xl border border-stone-300 bg-white p-2.5 shadow-[0_8px_20px_rgba(41,37,36,0.08)]" style={style}>
+        <div className="flex flex-col items-stretch gap-1.5">
+          <div className="relative flex min-h-[52px] flex-col items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9] py-2 pl-3.5 pr-12 text-center">
+            <div className="flex w-full min-w-0 flex-col items-center justify-center gap-0.5">
               {mostrarEquipe(lado1) ? (
-                <span className="jp-team-club">{lado1.clube}</span>
+                <span className="mb-px block w-full truncate whitespace-nowrap text-[10px] font-[950] uppercase leading-[1.05] tracking-[0.55px] text-[#0f3f7a]">{lado1.clube}</span>
               ) : null}
 
               {nomesBox(lado1).map((nome, index) => (
-                <span key={`${nome}-${index}`} className="jp-player-name">
+                <span key={`${nome}-${index}`} className="block w-full truncate whitespace-nowrap text-[13px] font-[950] uppercase leading-[1.12] tracking-[0.45px] text-gray-900">
                   {nome}
                 </span>
               ))}
             </div>
 
             <strong
-              className={`jp-total-score ${placar1 === "–" ? "jp-total-score-empty" : ""}`}
+              className={`absolute right-2 top-1/2 flex h-[34px] w-[34px] -translate-y-1/2 items-center justify-center rounded-full text-base font-[950] leading-none text-white ${placar1 === "–" ? "bg-stone-400 shadow-none" : "bg-[#0f3f7a] shadow-[0_3px_9px_rgba(15,63,122,0.18)]"}`}
               title="Sets vencidos pela dupla"
             >
               {placar1}
             </strong>
           </div>
 
-          <div className="jp-middle">
-            <div className="jp-x">X</div>
+          <div className="flex min-h-[34px] flex-col items-center justify-center text-center">
+            <div className="text-sm font-[950] leading-none text-gray-900">X</div>
 
-            <div className="jp-meta">
-              <b>{jogo.codigo || "SEM CÓDIGO"}</b>
-              {jogo.data_jogo ? <span>{formatarData(jogo.data_jogo)}</span> : null}
+            <div className="mt-0.5 flex items-center justify-center gap-[7px] overflow-hidden whitespace-nowrap text-[11px] font-[850] leading-none text-stone-600">
+              <b className="font-[950] text-[#0f3f7a]">{jogo.codigo || "SEM CÓDIGO"}</b>
+              {jogo.data_jogo ? <span className="overflow-hidden text-ellipsis">{formatarData(jogo.data_jogo)}</span> : null}
 
               <button
                 type="button"
-                className="jp-sets-button"
+                className="shrink-0 cursor-pointer rounded-full border-0 bg-[#0f3f7a] px-[9px] py-[5px] text-[10px] font-[950] tracking-[0.45px] text-white shadow-[0_3px_8px_rgba(15,63,122,0.18)] hover:brightness-110"
                 onClick={abrirSets}
                 onMouseEnter={abrirSets}
                 aria-label={`Ver resultados dos sets do jogo ${jogo.codigo || jogo.id}`}
@@ -829,21 +828,21 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
             </div>
           </div>
 
-          <div className="jp-team">
-            <div className="jp-team-names">
+          <div className="relative flex min-h-[52px] flex-col items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9] py-2 pl-3.5 pr-12 text-center">
+            <div className="flex w-full min-w-0 flex-col items-center justify-center gap-0.5">
               {mostrarEquipe(lado2) ? (
-                <span className="jp-team-club">{lado2.clube}</span>
+                <span className="mb-px block w-full truncate whitespace-nowrap text-[10px] font-[950] uppercase leading-[1.05] tracking-[0.55px] text-[#0f3f7a]">{lado2.clube}</span>
               ) : null}
 
               {nomesBox(lado2).map((nome, index) => (
-                <span key={`${nome}-${index}`} className="jp-player-name">
+                <span key={`${nome}-${index}`} className="block w-full truncate whitespace-nowrap text-[13px] font-[950] uppercase leading-[1.12] tracking-[0.45px] text-gray-900">
                   {nome}
                 </span>
               ))}
             </div>
 
             <strong
-              className={`jp-total-score ${placar2 === "–" ? "jp-total-score-empty" : ""}`}
+              className={`absolute right-2 top-1/2 flex h-[34px] w-[34px] -translate-y-1/2 items-center justify-center rounded-full text-base font-[950] leading-none text-white ${placar2 === "–" ? "bg-stone-400 shadow-none" : "bg-[#0f3f7a] shadow-[0_3px_9px_rgba(15,63,122,0.18)]"}`}
               title="Sets vencidos pela dupla"
             >
               {placar2}
@@ -854,25 +853,29 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
 
       {mostrarSets ? (
         <div
-          className="jp-sets-overlay"
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-[rgba(17,24,39,0.42)] p-[18px] backdrop-blur-[3px]"
           role="dialog"
           aria-modal="true"
           aria-label={`Sets do jogo ${jogo.codigo || jogo.id}`}
           onMouseDown={() => setMostrarSets(false)}
         >
           <div
-            className="jp-sets-modal"
+            className="max-h-[min(640px,calc(100vh-36px))] w-[min(470px,100%)] overflow-auto rounded-[18px] border border-stone-200 bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)]"
             onMouseDown={(event) => event.stopPropagation()}
           >
-            <div className="jp-sets-modal-head">
-              <div>
-                <span>RESULTADO POR SET</span>
-                <strong>{jogo.codigo || `Jogo ${jogo.id}`}</strong>
+            <div className="flex items-center justify-between gap-4 border-b border-stone-200 px-[18px] py-4">
+              <div className="flex flex-col gap-[3px]">
+                <span className="text-[10px] font-[950] tracking-[0.8px] text-stone-500">
+                  RESULTADO POR SET
+                </span>
+                <strong className="text-[17px] font-[950] text-[#0f3f7a]">
+                  {jogo.codigo || `Jogo ${jogo.id}`}
+                </strong>
               </div>
 
               <button
                 type="button"
-                className="jp-sets-close"
+                className="h-9 w-9 cursor-pointer rounded-full border-0 bg-stone-100 text-2xl leading-none text-stone-800"
                 onClick={() => setMostrarSets(false)}
                 aria-label="Fechar resultados dos sets"
               >
@@ -880,37 +883,47 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
               </button>
             </div>
 
-            <div className="jp-sets-total">
-              <div>
-                <span>{nomesBox(lado1).join(" / ")}</span>
-                <strong>{placar1}</strong>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-stone-200 bg-slate-50 px-[18px] py-4 text-left max-[760px]:grid-cols-1 max-[760px]:text-center">
+              <div className="flex min-w-0 items-center gap-[9px] max-[760px]:justify-between">
+                <span className="min-w-0 overflow-hidden text-ellipsis text-[11px] font-[900] uppercase leading-[1.2] text-stone-800">
+                  {nomesBox(lado1).join(" / ")}
+                </span>
+                <strong className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0f3f7a] text-[17px] font-[950] text-white">
+                  {placar1}
+                </strong>
               </div>
 
-              <b>PLACAR TOTAL</b>
+              <b className="whitespace-nowrap text-[9px] font-[950] tracking-[0.5px] text-stone-500 max-[760px]:order-first">
+                PLACAR TOTAL
+              </b>
 
-              <div>
-                <span>{nomesBox(lado2).join(" / ")}</span>
-                <strong>{placar2}</strong>
+              <div className="flex min-w-0 flex-row-reverse items-center gap-[9px] text-right max-[760px]:flex-row max-[760px]:justify-between max-[760px]:text-left">
+                <span className="min-w-0 overflow-hidden text-ellipsis text-[11px] font-[900] uppercase leading-[1.2] text-stone-800">
+                  {nomesBox(lado2).join(" / ")}
+                </span>
+                <strong className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0f3f7a] text-[17px] font-[950] text-white">
+                  {placar2}
+                </strong>
               </div>
             </div>
 
-            <div className="jp-sets-list">
+            <div className="flex flex-col gap-2 px-[18px] pb-[18px] pt-4">
               {carregandoSets ? (
-                <div className="jp-sets-message">Carregando sets...</div>
+                <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-3.5 py-[18px] text-center text-xs font-[850] text-stone-600">Carregando sets...</div>
               ) : erroSets ? (
-                <div className="jp-sets-message jp-sets-message-error">{erroSets}</div>
+                <div className="rounded-xl border border-dashed border-red-200 bg-red-50 px-3.5 py-[18px] text-center text-xs font-[850] text-red-700">{erroSets}</div>
               ) : sets.length === 0 ? (
-                <div className="jp-sets-message">Nenhum set lançado para este jogo.</div>
+                <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-3.5 py-[18px] text-center text-xs font-[850] text-stone-600">Nenhum set lançado para este jogo.</div>
               ) : (
                 sets.map((set, index) => (
                   <div
-                    className="jp-set-row"
+                    className="grid min-h-[46px] grid-cols-[1fr_44px_20px_44px] items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 py-[7px] pl-3.5 pr-2.5"
                     key={String(set.id ?? `${jogo.id}-${set.numero_set ?? index}`)}
                   >
-                    <span>SET {set.numero_set || index + 1}</span>
-                    <strong>{set.pontos_dupla1 ?? "-"}</strong>
-                    <i>×</i>
-                    <strong>{set.pontos_dupla2 ?? "-"}</strong>
+                    <span className="text-xs font-[950] tracking-[0.4px] text-stone-600">SET {set.numero_set || index + 1}</span>
+                    <strong className="flex h-8 items-center justify-center rounded-[9px] border border-stone-300 bg-white text-[15px] font-[950] text-gray-900">{set.pontos_dupla1 ?? "-"}</strong>
+                    <i className="text-center not-italic font-[950] text-stone-400">×</i>
+                    <strong className="flex h-8 items-center justify-center rounded-[9px] border border-stone-300 bg-white text-[15px] font-[950] text-gray-900">{set.pontos_dupla2 ?? "-"}</strong>
                   </div>
                 ))
               )}
@@ -1042,40 +1055,54 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
 
   if (!jogos.length) {
     return (
-      <div className="jp-empty">
+      <div className="rounded-[18px] border border-dashed border-stone-300 bg-white px-4 py-7 text-center font-[850] text-stone-500">
         Nenhuma chave encontrada para esta seleção.
       </div>
     );
   }
 
   return (
-    <div className="jp-board-scroll" ref={boardScrollRef}>
-      <div className="jp-scroll-hint">↔ Arraste para os lados para ver toda a chave</div>
+    <>
+      <div className="mb-3 flex w-full justify-center px-3">
+        <div
+          className="pointer-events-none flex items-center justify-center gap-3 whitespace-nowrap rounded-full border border-orange-200 bg-orange-50 px-4 py-2.5 text-center text-xs font-[950] text-orange-800 shadow-[0_8px_20px_rgba(154,52,18,0.12)] max-[520px]:w-full max-[520px]:whitespace-normal"
+          role="status"
+          aria-live="polite"
+        >
+          <span className="shrink-0 text-xl font-black leading-none text-orange-700">←</span>
+          <span>Arraste para os lados para ver toda a chave</span>
+          <span className="shrink-0 text-xl font-black leading-none text-orange-700">→</span>
+        </div>
+      </div>
 
       <div
-        className="jp-board"
-        style={{
-          width: calculo.totalWidth,
-          minWidth: calculo.totalWidth,
-          height: calculo.height,
-        }}
+        ref={boardScrollRef}
+        className="overflow-x-auto overflow-y-hidden rounded-[20px] border border-stone-200 bg-white p-3.5 shadow-[0_10px_24px_rgba(41,37,36,0.06)] [-webkit-overflow-scrolling:touch]"
       >
         <div
-          className="jp-heading jp-heading-left"
+          className="relative mx-auto"
+          style={{
+            width: calculo.totalWidth,
+            minWidth: calculo.totalWidth,
+            height: calculo.height,
+          }}
+        >
+        <div
+          className="absolute top-0 flex h-[42px] items-center justify-center rounded-lg bg-[#dedbc6] text-center text-[13px] font-[950] uppercase tracking-[0.35px] text-stone-800"
           style={{ left: 0, width: calculo.repWidth }}
         >
           {calculo.titulos.esquerda}
         </div>
 
         <div
-          className="jp-heading jp-heading-main"
+          className="absolute top-0 flex h-[42px] items-center justify-center rounded-lg bg-[#dce7f3] text-center text-[13px] font-[950] uppercase tracking-[0.35px] text-[#0f3f7a]"
           style={{ left: calculo.mainLeft, width: CARD_W }}
         >
           {calculo.titulos.meio}
         </div>
 
         <div
-          className="jp-heading jp-heading-right"
+          className="absolute top-0 flex h-[42px] items-center justify-center rounded-lg bg-[#e7b8b8] text-center text-[13px] font-[950] uppercase tracking-[0.35px] text-red-900"
           style={{ left: calculo.finalLeft, width: calculo.finalWidth }}
         >
           {calculo.titulos.direita}
@@ -1084,7 +1111,7 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
         {calculo.groupTitles.map((titulo) => (
           <div
             key={`${titulo.label}-${titulo.top}`}
-            className="jp-group-title"
+            className="absolute z-[2] flex items-center justify-center rounded-[7px] bg-[#0f3f7a] text-center text-[13px] font-[950] uppercase tracking-[0.5px] text-white"
             style={{
               left: titulo.left,
               top: titulo.top,
@@ -1108,8 +1135,9 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
             }}
           />
         ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -1222,11 +1250,11 @@ function VisualizadorSistemaChaves() {
   }, [torneioId]);
 
   return (
-    <section className="jp-section">
-      <div className="jp-filter-box">
+    <section className="mx-auto w-full max-w-[1280px] px-4 pb-7 pt-3.5">
+      <div className="mb-2.5 grid grid-cols-2 gap-3 rounded-[18px] border border-stone-200 bg-white p-3 shadow-[0_8px_20px_rgba(41,37,36,0.05)] max-[760px]:grid-cols-1">
         <div>
-          <label>Categoria</label>
-          <select value={categoriaId} onChange={(event) => setCategoriaId(event.target.value)}>
+          <label className="mb-[5px] block text-[11px] font-[950] uppercase text-stone-600">Categoria</label>
+          <select className="min-h-[42px] w-full rounded-xl border border-stone-300 bg-white px-3 font-[850] text-stone-800 outline-none" value={categoriaId} onChange={(event) => setCategoriaId(event.target.value)}>
             {categorias.map((categoria) => (
               <option key={categoria.id} value={categoria.id}>
                 {categoria.nome}
@@ -1236,8 +1264,8 @@ function VisualizadorSistemaChaves() {
         </div>
 
         <div>
-          <label>Chave</label>
-          <select value={torneioId} onChange={(event) => setTorneioId(event.target.value)}>
+          <label className="mb-[5px] block text-[11px] font-[950] uppercase text-stone-600">Chave</label>
+          <select className="min-h-[42px] w-full rounded-xl border border-stone-300 bg-white px-3 font-[850] text-stone-800 outline-none" value={torneioId} onChange={(event) => setTorneioId(event.target.value)}>
             {torneios.map((torneio) => (
               <option key={torneio.id} value={torneio.id}>
                 {torneio.titulo}
@@ -1247,12 +1275,16 @@ function VisualizadorSistemaChaves() {
         </div>
       </div>
 
-      {loading ? <div className="jp-alert jp-alert-info">Carregando...</div> : null}
-      {erro ? <div className="jp-alert jp-alert-error">{erro}</div> : null}
+      {loading ? <div className="my-2.5 rounded-xl bg-blue-50 px-3 py-2.5 text-center text-[13px] font-[850] text-blue-900">Carregando...</div> : null}
+      {erro ? <div className="my-2.5 rounded-xl bg-red-50 px-3 py-2.5 text-center text-[13px] font-[850] text-red-700">{erro}</div> : null}
 
-      <div className="jp-chave-title">
-        <h2>{detalhes.torneio?.titulo || torneios.find((t) => String(t.id) === torneioId)?.titulo || "Chaves"}</h2>
-        {detalhes.torneio?.subtitulo ? <p>{detalhes.torneio.subtitulo}</p> : null}
+      <div className="my-2.5 text-center">
+        <h2 className="m-0 text-[clamp(20px,3vw,28px)] font-[950] uppercase text-stone-900">
+          {detalhes.torneio?.titulo ||
+            torneios.find((t) => String(t.id) === torneioId)?.titulo ||
+            "Chaves"}
+        </h2>
+        {detalhes.torneio?.subtitulo ? <p className="mt-1 text-[13px] font-bold text-stone-500">{detalhes.torneio.subtitulo}</p> : null}
       </div>
 
       <ChaveVisual detalhes={detalhes} />
@@ -1307,12 +1339,12 @@ function VisualizadorFotosChaves() {
   }, []);
 
   return (
-    <section className="jp-section jp-photos">
-      {loading ? <div className="jp-alert jp-alert-info">Carregando imagens...</div> : null}
-      {erro ? <div className="jp-alert jp-alert-error">{erro}</div> : null}
+    <section className="mx-auto flex w-full max-w-[980px] flex-col gap-[18px] px-4 pb-7 pt-3.5">
+      {loading ? <div className="my-2.5 rounded-xl bg-blue-50 px-3 py-2.5 text-center text-[13px] font-[850] text-blue-900">Carregando imagens...</div> : null}
+      {erro ? <div className="my-2.5 rounded-xl bg-red-50 px-3 py-2.5 text-center text-[13px] font-[850] text-red-700">{erro}</div> : null}
 
       {!loading && !erro && !imagens.length ? (
-        <div className="jp-empty">
+        <div className="rounded-[18px] border border-dashed border-stone-300 bg-white px-4 py-7 text-center font-[850] text-stone-500">
           Nenhuma imagem encontrada.
         </div>
       ) : null}
@@ -1323,12 +1355,13 @@ function VisualizadorFotosChaves() {
           href={urlImagem(imagem)}
           target="_blank"
           rel="noreferrer"
-          className="jp-photo-link"
+          className="block w-full"
         >
           <img
             src={urlImagem(imagem)}
             alt={`Chave ${index + 1}`}
             loading="lazy"
+            className="block w-full max-w-full rounded-2xl border border-stone-200 bg-white shadow-[0_10px_24px_rgba(41,37,36,0.06)]"
           />
         </a>
       ))}
@@ -1344,667 +1377,27 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
   }, [initialMode]);
 
   return (
-    <div className="jp-page">
-      <style>{`
-        .jp-page {
-          min-height: 80vh;
-          background: #fcfaf2;
-          color: #292524;
-        }
+    <div className="min-h-[80vh] bg-[#fcfaf2] text-stone-800">
 
-        .jp-top {
-          max-width: 1180px;
-          margin: 0 auto;
-          padding: 20px 16px 8px;
-        }
-
-        .jp-title-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          margin-bottom: 12px;
-        }
-
-        .jp-title-row h1 {
-          margin: 0;
-          font-size: clamp(22px, 4vw, 34px);
-          line-height: 1;
-          font-weight: 950;
-          text-transform: uppercase;
-          color: #1c1917;
-        }
-
-        .jp-title-row p {
-          margin: 4px 0 0;
-          color: #78716c;
-          font-size: 13px;
-          font-weight: 700;
-        }
-
-        .jp-back {
-          border: 1px solid #d6d3d1;
-          background: #fff;
-          border-radius: 999px;
-          padding: 9px 14px;
-          font-size: 13px;
-          color: #44403c;
-          font-weight: 900;
-          cursor: pointer;
-          white-space: nowrap;
-        }
-
-        .jp-tabs {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 10px;
-          max-width: 620px;
-        }
-
-        .jp-tabs button {
-          border: 1px solid #d6d3d1;
-          background: #fff;
-          border-radius: 14px;
-          padding: 12px 14px;
-          color: #44403c;
-          font-size: 13px;
-          font-weight: 950;
-          text-transform: uppercase;
-          cursor: pointer;
-          box-shadow: 0 8px 18px rgba(41, 37, 36, .06);
-        }
-
-        .jp-tabs button.active {
-          background: #0f3f7a;
-          border-color: #0f3f7a;
-          color: #fff;
-        }
-
-        .jp-section {
-          width: 100%;
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 14px 16px 28px;
-        }
-
-        .jp-filter-box {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
-          margin-bottom: 10px;
-          background: #fff;
-          border: 1px solid #e7e5e4;
-          border-radius: 18px;
-          padding: 12px;
-          box-shadow: 0 8px 20px rgba(41, 37, 36, .05);
-        }
-
-        .jp-filter-box label {
-          display: block;
-          margin: 0 0 5px;
-          font-size: 11px;
-          text-transform: uppercase;
-          color: #57534e;
-          font-weight: 950;
-        }
-
-        .jp-filter-box select {
-          width: 100%;
-          min-height: 42px;
-          border: 1px solid #d6d3d1;
-          border-radius: 12px;
-          background: #fff;
-          padding: 0 12px;
-          font-weight: 850;
-          color: #292524;
-          outline: none;
-        }
-
-        .jp-alert {
-          margin: 10px 0;
-          border-radius: 12px;
-          padding: 10px 12px;
-          font-size: 13px;
-          font-weight: 850;
-          text-align: center;
-        }
-
-        .jp-alert-info {
-          background: #eff6ff;
-          color: #1e3a8a;
-        }
-
-        .jp-alert-error {
-          background: #fef2f2;
-          color: #b91c1c;
-        }
-
-        .jp-chave-title {
-          text-align: center;
-          margin: 12px 0 10px;
-        }
-
-        .jp-chave-title h2 {
-          margin: 0;
-          font-size: clamp(20px, 3vw, 28px);
-          color: #1c1917;
-          font-weight: 950;
-          text-transform: uppercase;
-        }
-
-        .jp-chave-title p {
-          margin: 4px 0 0;
-          font-size: 13px;
-          color: #78716c;
-          font-weight: 700;
-        }
-
-        .jp-board-scroll {
-          overflow-x: auto;
-          overflow-y: hidden;
-          -webkit-overflow-scrolling: touch;
-          background: #fff;
-          border: 1px solid #e7e5e4;
-          border-radius: 20px;
-          padding: 14px;
-          box-shadow: 0 10px 24px rgba(41, 37, 36, .06);
-        }
-
-        .jp-scroll-hint {
-          display: none;
-          margin-bottom: 10px;
-          background: #fff7ed;
-          border: 1px solid #fed7aa;
-          color: #9a3412;
-          border-radius: 10px;
-          padding: 8px 10px;
-          font-size: 12px;
-          text-align: center;
-          font-weight: 950;
-        }
-
-        .jp-board {
-          position: relative;
-          margin: 0 auto;
-        }
-
-        .jp-heading {
-          position: absolute;
-          top: 0;
-          height: ${HEADER_H}px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 8px;
-          text-align: center;
-          font-size: 13px;
-          font-weight: 950;
-          text-transform: uppercase;
-          letter-spacing: .35px;
-        }
-
-        .jp-heading-left {
-          background: #dedbc6;
-          color: #292524;
-        }
-
-        .jp-heading-main {
-          background: #dce7f3;
-          color: #0f3f7a;
-        }
-
-        .jp-heading-right {
-          background: #e7b8b8;
-          color: #7f1d1d;
-        }
-
-        .jp-group-title {
-          position: absolute;
-          height: ${GROUP_TITLE_H}px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #0f3f7a;
-          color: #fff;
-          border-radius: 7px;
-          font-size: 13px;
-          font-weight: 950;
-          text-transform: uppercase;
-          letter-spacing: .5px;
-          z-index: 2;
-        }
-
-        .jp-card {
-          position: absolute;
-          background: #fff;
-          border: 1px solid #d6d3d1;
-          border-radius: 12px;
-          box-shadow: 0 8px 20px rgba(41, 37, 36, .08);
-          padding: 10px;
-          overflow: hidden;
-          z-index: 5;
-        }
-
-        .jp-match {
-          display: flex;
-          flex-direction: column;
-          align-items: stretch;
-          gap: 6px;
-        }
-
-        .jp-team {
-          min-height: 52px;
-          background: #d9d9d9;
-          border-radius: 999px;
-          padding: 8px 48px 8px 14px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          overflow: hidden;
-          position: relative;
-        }
-
-        .jp-team-names {
-          width: 100%;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 2px;
-        }
-
-        .jp-team-club {
-          display: block;
-          width: 100%;
-          margin-bottom: 1px;
-          color: #0f3f7a;
-          font-size: 10px;
-          line-height: 1.05;
-          font-weight: 950;
-          text-transform: uppercase;
-          letter-spacing: .55px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .jp-total-score {
-          position: absolute;
-          right: 8px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 34px;
-          height: 34px;
-          border-radius: 999px;
-          background: #0f3f7a;
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          line-height: 1;
-          font-weight: 950;
-          box-shadow: 0 3px 9px rgba(15, 63, 122, .18);
-        }
-
-        .jp-total-score-empty {
-          background: #a8a29e;
-          box-shadow: none;
-        }
-
-        .jp-player-name {
-          display: block;
-          width: 100%;
-          color: #111827;
-          font-size: 13px;
-          line-height: 1.12;
-          font-weight: 950;
-          text-transform: uppercase;
-          letter-spacing: .45px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .jp-middle {
-          min-height: 34px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-        }
-
-        .jp-x {
-          color: #111827;
-          font-size: 14px;
-          line-height: 1;
-          font-weight: 950;
-        }
-
-        .jp-meta {
-          margin-top: 2px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 7px;
-          color: #57534e;
-          font-size: 11px;
-          line-height: 1;
-          font-weight: 850;
-          white-space: nowrap;
-          overflow: hidden;
-        }
-
-        .jp-meta b {
-          color: #0f3f7a;
-          font-weight: 950;
-        }
-
-        .jp-meta span {
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .jp-meta em {
-          flex: 0 0 auto;
-          background: #ecfdf5;
-          color: #047857;
-          border-radius: 999px;
-          padding: 4px 7px;
-          font-style: normal;
-          font-weight: 950;
-        }
-
-        .jp-sets-button {
-          flex: 0 0 auto;
-          border: 0;
-          border-radius: 999px;
-          padding: 5px 9px;
-          background: #0f3f7a;
-          color: #fff;
-          font: inherit;
-          font-size: 10px;
-          font-weight: 950;
-          letter-spacing: .45px;
-          cursor: pointer;
-          box-shadow: 0 3px 8px rgba(15, 63, 122, .18);
-        }
-
-        .jp-sets-button:hover {
-          filter: brightness(1.08);
-        }
-
-        .jp-sets-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 99999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 18px;
-          background: rgba(17, 24, 39, .42);
-          backdrop-filter: blur(3px);
-        }
-
-        .jp-sets-modal {
-          width: min(470px, 100%);
-          max-height: min(640px, calc(100vh - 36px));
-          overflow: auto;
-          background: #fff;
-          border: 1px solid #e7e5e4;
-          border-radius: 18px;
-          box-shadow: 0 24px 70px rgba(17, 24, 39, .24);
-        }
-
-        .jp-sets-modal-head {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 16px 18px;
-          border-bottom: 1px solid #e7e5e4;
-        }
-
-        .jp-sets-modal-head > div {
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-
-        .jp-sets-modal-head span {
-          color: #78716c;
-          font-size: 10px;
-          font-weight: 950;
-          letter-spacing: .8px;
-        }
-
-        .jp-sets-modal-head strong {
-          color: #0f3f7a;
-          font-size: 17px;
-          font-weight: 950;
-        }
-
-        .jp-sets-close {
-          width: 36px;
-          height: 36px;
-          border: 0;
-          border-radius: 999px;
-          background: #f5f5f4;
-          color: #292524;
-          font-size: 24px;
-          line-height: 1;
-          cursor: pointer;
-        }
-
-        .jp-sets-total {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          gap: 12px;
-          padding: 16px 18px;
-          background: #f8fafc;
-          border-bottom: 1px solid #e7e5e4;
-        }
-
-        .jp-sets-total > div {
-          min-width: 0;
-          display: flex;
-          align-items: center;
-          gap: 9px;
-        }
-
-        .jp-sets-total > div:last-child {
-          flex-direction: row-reverse;
-          text-align: right;
-        }
-
-        .jp-sets-total span {
-          min-width: 0;
-          color: #292524;
-          font-size: 11px;
-          line-height: 1.2;
-          font-weight: 900;
-          text-transform: uppercase;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .jp-sets-total strong {
-          flex: 0 0 auto;
-          width: 36px;
-          height: 36px;
-          border-radius: 999px;
-          background: #0f3f7a;
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 17px;
-          font-weight: 950;
-        }
-
-        .jp-sets-total > b {
-          color: #78716c;
-          font-size: 9px;
-          font-weight: 950;
-          letter-spacing: .5px;
-          white-space: nowrap;
-        }
-
-        .jp-sets-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          padding: 16px 18px 18px;
-        }
-
-        .jp-sets-message {
-          padding: 18px 14px;
-          border: 1px dashed #d6d3d1;
-          border-radius: 12px;
-          background: #fafaf9;
-          color: #57534e;
-          text-align: center;
-          font-size: 12px;
-          font-weight: 850;
-        }
-
-        .jp-sets-message-error {
-          border-color: #fecaca;
-          background: #fef2f2;
-          color: #b91c1c;
-        }
-
-        .jp-set-row {
-          display: grid;
-          grid-template-columns: 1fr 44px 20px 44px;
-          align-items: center;
-          gap: 6px;
-          min-height: 46px;
-          padding: 7px 10px 7px 14px;
-          background: #fafaf9;
-          border: 1px solid #e7e5e4;
-          border-radius: 12px;
-        }
-
-        .jp-set-row span {
-          color: #57534e;
-          font-size: 12px;
-          font-weight: 950;
-          letter-spacing: .4px;
-        }
-
-        .jp-set-row strong {
-          height: 32px;
-          border-radius: 9px;
-          background: #fff;
-          border: 1px solid #d6d3d1;
-          color: #111827;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 15px;
-          font-weight: 950;
-        }
-
-        .jp-set-row i {
-          color: #a8a29e;
-          text-align: center;
-          font-style: normal;
-          font-weight: 950;
-        }
-
-        .jp-empty {
-          background: #fff;
-          border: 1px dashed #d6d3d1;
-          border-radius: 18px;
-          padding: 28px 16px;
-          text-align: center;
-          color: #78716c;
-          font-weight: 850;
-        }
-
-        .jp-photos {
-          max-width: 980px;
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-
-        .jp-photo-link {
-          display: block;
-          width: 100%;
-        }
-
-        .jp-photos img {
-          width: 100%;
-          max-width: 100%;
-          display: block;
-          border-radius: 16px;
-          border: 1px solid #e7e5e4;
-          background: #fff;
-          box-shadow: 0 10px 24px rgba(41, 37, 36, .06);
-        }
-
-        @media (max-width: 760px) {
-          .jp-title-row {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-
-          .jp-tabs {
-            max-width: none;
-          }
-
-          .jp-filter-box {
-            grid-template-columns: 1fr;
-          }
-
-          .jp-scroll-hint {
-            display: block;
-          }
-
-          .jp-sets-total {
-            grid-template-columns: 1fr;
-            text-align: center;
-          }
-
-          .jp-sets-total > div,
-          .jp-sets-total > div:last-child {
-            flex-direction: row;
-            justify-content: space-between;
-            text-align: left;
-          }
-
-          .jp-sets-total > b {
-            order: -1;
-          }
-        }
-      `}</style>
-
-      <section className="jp-top">
-        <div className="jp-title-row">
+      <section className="mx-auto max-w-[1180px] px-4 pb-2 pt-5">
+        <div className="mb-3 flex items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-start">
           <div>
-            <h1>Jogos</h1>
-            <p>Escolha como deseja visualizar as chaves.</p>
+            <h1 className="m-0 text-[clamp(22px,4vw,34px)] font-[950] uppercase leading-none text-stone-900">Jogos</h1>
+            <p className="mt-1 text-[13px] font-bold text-stone-500">Escolha como deseja visualizar as chaves.</p>
           </div>
 
           {onBack ? (
-            <button type="button" onClick={onBack} className="jp-back">
+            <button type="button" onClick={onBack} className="cursor-pointer whitespace-nowrap rounded-full border border-stone-300 bg-white px-3.5 py-[9px] text-[13px] font-[900] text-stone-700">
               ← Voltar
             </button>
           ) : null}
         </div>
 
-        <div className="jp-tabs">
+        <div className="grid max-w-[620px] grid-cols-2 gap-2.5 max-[760px]:max-w-none">
           <button
             type="button"
             onClick={() => setModo("fotos")}
-            className={modo === "fotos" ? "active" : ""}
+            className={`cursor-pointer rounded-[14px] border px-3.5 py-3 text-[13px] font-[950] uppercase shadow-[0_8px_18px_rgba(41,37,36,0.06)] transition-colors ${modo === "fotos" ? "border-[#0f3f7a] bg-[#0f3f7a] text-white" : "border-stone-300 bg-white text-stone-700"}`}
           >
             Fotos das chaves
           </button>
@@ -2012,7 +1405,7 @@ export default function JogosPage({ onBack, initialMode = "fotos" }: JogosPagePr
           <button
             type="button"
             onClick={() => setModo("sistema")}
-            className={modo === "sistema" ? "active" : ""}
+            className={`cursor-pointer rounded-[14px] border px-3.5 py-3 text-[13px] font-[950] uppercase shadow-[0_8px_18px_rgba(41,37,36,0.06)] transition-colors ${modo === "sistema" ? "border-[#0f3f7a] bg-[#0f3f7a] text-white" : "border-stone-300 bg-white text-stone-700"}`}
           >
             Chaves interativas
           </button>

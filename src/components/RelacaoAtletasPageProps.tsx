@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Users, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Users, Loader2, AlertCircle, Search, X } from "lucide-react";
 import { motion } from "motion/react";
 
 interface RelacaoAtletasPageProps {
@@ -39,10 +39,24 @@ type FaixaEtaria = 120 | 130 | 140 | 150 | 160;
 
 type CategoriaSelecionada = FaixaEtaria | "todos";
 
+type ResultadoBusca = {
+  atleta: Atleta;
+  equipe: Equipe;
+  categoria: Categoria;
+};
+
 const API_URL =
   "https://sothink.com.br/centenario26/api/v2/nippon";
 
 const FAIXAS: FaixaEtaria[] = [120, 130, 140, 150, 160];
+
+function normalizarBusca(valor: string): string {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
 function pegarIdade(titulo: string): number | null {
   const match = titulo.match(/\b(120|130|140|150|160)\b/);
@@ -51,7 +65,7 @@ function pegarIdade(titulo: string): number | null {
 }
 
 function pegarLetra(titulo: string): string | null {
-  const match = titulo.match(/["']?([A-F])["']?\s*$/i);
+  const match = titulo.match(/["']?([A-G])["']?\s*$/i);
 
   return match ? match[1].toUpperCase() : null;
 }
@@ -202,6 +216,8 @@ export default function RelacaoAtletasPage({
 
   const [erro, setErro] = useState<string | null>(null);
 
+  const [busca, setBusca] = useState("");
+
   /*
   ============================================
   CARREGA AS CATEGORIAS DO BANCO
@@ -295,6 +311,54 @@ export default function RelacaoAtletasPage({
 
   }, [categoriaAtual, categorias]);
 
+  /*
+  ============================================
+  BUSCA GLOBAL DE ATLETAS
+  Ignora categoria/equipe selecionada.
+  ============================================
+  */
+  const termoBusca = normalizarBusca(busca);
+
+  const resultadosBusca = useMemo<ResultadoBusca[]>(() => {
+
+    if (!termoBusca) {
+      return [];
+    }
+
+    const resultados: ResultadoBusca[] = [];
+
+    categorias.forEach((categoria) => {
+
+      categoria.equipes?.forEach((equipe) => {
+
+        equipe.atletas?.forEach((atleta) => {
+
+          if (
+            normalizarBusca(atleta.nome || "").includes(termoBusca)
+          ) {
+            resultados.push({
+              atleta,
+              equipe,
+              categoria,
+            });
+          }
+
+        });
+
+      });
+
+    });
+
+    return resultados.sort((a, b) =>
+      a.atleta.nome.localeCompare(
+        b.atleta.nome,
+        "pt-BR",
+        { sensitivity: "base" },
+      ),
+    );
+
+  }, [categorias, termoBusca]);
+
   return (
 
     <div className="min-h-screen bg-white px-4 py-8 md:px-8 md:py-10">
@@ -325,6 +389,82 @@ export default function RelacaoAtletasPage({
             duration: 0.35,
           }}
         >
+
+          {/* BUSCA GLOBAL DE ATLETAS */}
+          <div className="mx-auto mb-6 max-w-2xl">
+
+            <div className="relative">
+
+              <Search
+                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+              />
+
+              <input
+                type="text"
+                value={busca}
+                onChange={(event) =>
+                  setBusca(event.target.value)
+                }
+                placeholder="Procure um atleta pelo nome..."
+                autoComplete="off"
+                className="
+                  h-12
+                  w-full
+                  rounded-2xl
+                  border
+                  border-gray-200
+                  bg-white
+                  pl-12
+                  pr-12
+                  text-sm
+                  font-semibold
+                  text-black
+                  shadow-sm
+                  outline-none
+                  transition
+                  placeholder:font-medium
+                  placeholder:text-gray-400
+                  focus:border-[#c93b2b]
+                  focus:ring-4
+                  focus:ring-[#c93b2b]/10
+                "
+              />
+
+              {busca ? (
+
+                <button
+                  type="button"
+                  onClick={() => setBusca("")}
+                  aria-label="Limpar busca"
+                  className="
+                    absolute
+                    right-3
+                    top-1/2
+                    flex
+                    h-8
+                    w-8
+                    -translate-y-1/2
+                    items-center
+                    justify-center
+                    rounded-full
+                    text-gray-400
+                    transition
+                    hover:bg-gray-100
+                    hover:text-black
+                  "
+                >
+                  <X className="h-4 w-4" />
+                </button>
+
+              ) : null}
+
+            </div>
+
+            <p className="mt-2 text-center text-[11px] font-medium text-gray-400">
+              A busca procura em todas as categorias e equipes.
+            </p>
+
+          </div>
 
           {/* NAVEGAÇÃO */}
           <nav className="mb-10 flex flex-wrap items-center justify-center gap-2">
@@ -394,11 +534,142 @@ export default function RelacaoAtletasPage({
 
           )}
 
-          {/* CATEGORIAS */}
+          {/* RESULTADOS DA BUSCA / CATEGORIAS */}
           {!loading && !erro && (
 
             <>
-              {categoriasExibidas.length > 0 ? (
+              {termoBusca ? (
+
+                <div>
+
+                  <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+
+                    <div>
+
+                      <p className="text-sm font-bold text-black">
+                        Resultado da busca
+                      </p>
+
+                      <p className="text-xs font-medium text-gray-400">
+                        {resultadosBusca.length === 1
+                          ? "1 atleta encontrado"
+                          : `${resultadosBusca.length} atletas encontrados`}
+                      </p>
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setBusca("")}
+                      className="rounded-full bg-gray-100 px-4 py-2 text-xs font-bold text-gray-600 transition hover:bg-gray-200"
+                    >
+                      Limpar busca
+                    </button>
+
+                  </div>
+
+                  {resultadosBusca.length > 0 ? (
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+                      {resultadosBusca.map(
+                        ({ atleta, equipe, categoria }, index) => (
+
+                          <article
+                            key={`${categoria.id}-${equipe.id}-${atleta.id}-${index}`}
+                            className="
+                              overflow-hidden
+                              rounded-2xl
+                              border
+                              border-gray-200
+                              bg-white
+                              shadow-sm
+                              transition
+                              hover:-translate-y-0.5
+                              hover:shadow-md
+                            "
+                          >
+
+                            <div className="border-b border-gray-100 px-4 py-4">
+
+                              <div className="flex items-start gap-3">
+
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#c93b2b]/10 text-[#c93b2b]">
+                                  <Users className="h-4 w-4" />
+                                </span>
+
+                                <div className="min-w-0">
+
+                                  <h3 className="text-[14px] font-extrabold leading-tight text-black">
+                                    {atleta.nome}
+                                  </h3>
+
+                                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                                    Atleta
+                                  </p>
+
+                                </div>
+
+                              </div>
+
+                            </div>
+
+                            <div className="space-y-3 px-4 py-4">
+
+                              <div>
+
+                                <span className="block text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                                  Equipe
+                                </span>
+
+                                <strong className="mt-0.5 block text-[12px] font-bold uppercase leading-tight text-black">
+                                  {equipe.nome}
+                                </strong>
+
+                              </div>
+
+                              <div>
+
+                                <span className="block text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                                  Categoria
+                                </span>
+
+                                <strong className="mt-0.5 block text-[11px] font-bold uppercase leading-tight text-[#c93b2b]">
+                                  {categoria.titulo}
+                                </strong>
+
+                              </div>
+
+                            </div>
+
+                          </article>
+
+                        ),
+                      )}
+
+                    </div>
+
+                  ) : (
+
+                    <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-16 text-center">
+
+                      <Search className="mx-auto mb-3 h-8 w-8 text-gray-300" />
+
+                      <p className="text-sm font-bold text-gray-600">
+                        Nenhum atleta encontrado.
+                      </p>
+
+                      <p className="mt-1 text-xs font-medium text-gray-400">
+                        Tente digitar outro nome.
+                      </p>
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              ) : categoriasExibidas.length > 0 ? (
 
                 <div
                   className="
