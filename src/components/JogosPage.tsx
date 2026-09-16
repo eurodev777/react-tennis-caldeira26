@@ -747,49 +747,103 @@ function MatchCard({ jogo, duplas, style }: { jogo: Jogo; duplas: Dupla[]; style
 
   // Começa usando os sets que já possam ter vindo no /detalhes,
   // mas o botão SETS SEMPRE aparece e também consegue buscar por jogo_id.
-  const [sets, setSets] = useState<SetJogo[]>(() =>
-    [...(jogo.sets || [])].sort(
-      (a, b) => Number(a.numero_set || 0) - Number(b.numero_set || 0)
-    )
+const [sets, setSets] = useState<SetJogo[]>([]);
+const [mostrarSets, setMostrarSets] = useState(false);
+const [carregandoSets, setCarregandoSets] = useState(false);
+const [erroSets, setErroSets] = useState("");
+
+/*
+ * Quando o jogo mudar ou quando /detalhes trouxer sets novos,
+ * sincroniza automaticamente.
+ */
+useEffect(() => {
+  const listaInicial = [...(jogo.sets || [])].sort(
+    (a, b) => Number(a.numero_set || 0) - Number(b.numero_set || 0)
   );
-  const [mostrarSets, setMostrarSets] = useState(false);
-  const [carregandoSets, setCarregandoSets] = useState(false);
-  const [setsCarregados, setSetsCarregados] = useState((jogo.sets || []).length > 0);
-  const [erroSets, setErroSets] = useState("");
 
-  const carregarSets = async () => {
-    // Se já carregou (mesmo que a lista esteja vazia), não consulta de novo.
-    if (setsCarregados || carregandoSets) return;
+  setSets(listaInicial);
+}, [jogo.id, jogo.sets]);
 
-    setCarregandoSets(true);
-    setErroSets("");
+/*
+ * Busca DIRETAMENTE no banco através da API.
+ *
+ * Não usa cache.
+ * Toda vez que abrir SETS, consulta novamente:
+ *
+ * /listar?tabela=sets&jogo_id=ID
+ */
+const carregarSets = async () => {
+  if (carregandoSets) return;
 
-    try {
-      const data = await apiChaves<SetJogo[]>("listar", {
-        tabela: "sets",
-        jogo_id: jogo.id,
-      });
+  setCarregandoSets(true);
+  setErroSets("");
 
-      const lista = Array.isArray(data) ? data : [];
-      lista.sort(
-        (a, b) => Number(a.numero_set || 0) - Number(b.numero_set || 0)
-      );
+  try {
+    const resposta = await apiChaves<unknown>("listar", {
+      tabela: "sets",
+      jogo_id: jogo.id,
+    });
 
-      setSets(lista);
-      setSetsCarregados(true);
-    } catch (error) {
-      setErroSets(
-        error instanceof Error ? error.message : "Erro ao carregar os sets"
-      );
-    } finally {
-      setCarregandoSets(false);
+    console.log("SETS DO JOGO", jogo.id, resposta);
+
+    /*
+     * O backend atual retorna array puro:
+     *
+     * [
+     *   {
+     *     id: 1,
+     *     jogo_id: 10,
+     *     numero_set: 1,
+     *     pontos_dupla1: 6,
+     *     pontos_dupla2: 4
+     *   }
+     * ]
+     *
+     * Mas deixamos compatível também com respostas
+     * { sets: [...] }, { dados: [...] } ou { data: [...] }.
+     */
+    let lista: SetJogo[] = [];
+
+    if (Array.isArray(resposta)) {
+      lista = resposta as SetJogo[];
+    } else if (resposta && typeof resposta === "object") {
+      const obj = resposta as Record<string, unknown>;
+
+      if (Array.isArray(obj.sets)) {
+        lista = obj.sets as SetJogo[];
+      } else if (Array.isArray(obj.dados)) {
+        lista = obj.dados as SetJogo[];
+      } else if (Array.isArray(obj.data)) {
+        lista = obj.data as SetJogo[];
+      }
     }
-  };
 
-  const abrirSets = () => {
-    setMostrarSets(true);
-    void carregarSets();
-  };
+    lista = [...lista].sort(
+      (a, b) => Number(a.numero_set || 0) - Number(b.numero_set || 0)
+    );
+
+    console.log("SETS NORMALIZADOS:", lista);
+
+    setSets(lista);
+  } catch (error) {
+    console.error("ERRO AO CARREGAR SETS:", error);
+
+    setErroSets(
+      error instanceof Error
+        ? error.message
+        : "Erro ao carregar os sets deste jogo."
+    );
+  } finally {
+    setCarregandoSets(false);
+  }
+};
+
+const abrirSets = () => {
+  setMostrarSets(true);
+
+  // SEMPRE busca os valores mais recentes do banco.
+  void carregarSets();
+};
 
   const placarCalculado = useMemo(() => {
     let dupla1 = 0;
