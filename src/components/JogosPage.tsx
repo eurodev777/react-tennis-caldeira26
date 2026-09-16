@@ -12,6 +12,10 @@ type Torneio = {
   titulo: string;
   subtitulo?: string;
   status?: string;
+  campeao_nome?: string;
+  vice_nome?: string;
+  terceiro_nome?: string;
+  campeao_repescagem_nome?: string;
 };
 
 type Dupla = {
@@ -95,6 +99,8 @@ const GAP_COL = 36;
 const GAP_SECAO = 44;
 const BOARD_TOP = 72;
 const GROUP_TITLE_H = 34;
+const RESULT_W = 240;
+const RESULT_GAP = 28;
 
 function texto(valor: unknown): string {
   return String(valor ?? "").trim();
@@ -460,6 +466,71 @@ function titulosDaChave(jogos: Jogo[], duplas: Dupla[], torneio?: Torneio) {
     meio: "Chave Principal",
     direita: "Final",
   };
+}
+
+function ultimoJogoFinalizadoDaUltimaColuna(lista: Jogo[]): Jogo | null {
+  if (!lista.length) return null;
+
+  const ultimaColuna = maxColuna(lista);
+  const jogosUltimaColuna = ordenarJogos(
+    lista.filter((jogo) => colunaDoJogo(jogo) === ultimaColuna)
+  );
+
+  const finalizados = jogosUltimaColuna.filter(
+    (jogo) => normalizar(jogo.status) === "finalizado" && texto(jogo.vencedor_nome)
+  );
+
+  return finalizados.length ? finalizados[finalizados.length - 1] : null;
+}
+
+function nomeLadoResultado(jogo: Jogo, lado: 1 | 2, duplas: Dupla[]): string {
+  const nomeDireto =
+    texto(jogo[`dupla${lado}_nome` as keyof Jogo]) ||
+    texto(jogo[`dupla${lado}_label` as keyof Jogo]);
+
+  if (nomeDireto) return nomeDireto;
+
+  const duplaId = idNumerico(jogo[`dupla${lado}_id` as keyof Jogo]);
+  const dupla = duplas.find((item) => idNumerico(item.id) === duplaId);
+
+  if (!dupla) return "A definir";
+
+  return (
+    texto(dupla.nome) ||
+    jogadoresDaDupla(dupla) ||
+    nomeClubeCidade(dupla) ||
+    "A definir"
+  );
+}
+
+function ResultadoDestaque({
+  titulo,
+  nome,
+  destaque = "principal",
+}: {
+  titulo: string;
+  nome: string;
+  destaque?: "principal" | "terceiro" | "repescagem";
+}) {
+  const visual =
+    destaque === "terceiro"
+      ? "border-amber-300 bg-amber-50 text-amber-900"
+      : destaque === "repescagem"
+        ? "border-stone-300 bg-[#dedbc6] text-stone-800"
+        : "border-red-200 bg-[#f6dddd] text-red-950";
+
+  return (
+    <div
+      className={`flex min-h-[82px] w-full flex-col items-center justify-center rounded-xl border px-4 py-3 text-center shadow-[0_8px_18px_rgba(41,37,36,0.08)] ${visual}`}
+    >
+      <span className="text-[11px] font-[950] uppercase tracking-[0.65px] opacity-80">
+        {titulo}
+      </span>
+      <strong className="mt-1.5 block max-w-full break-words text-[14px] font-[950] uppercase leading-[1.15] text-gray-950">
+        {texto(nome) || "A definir"}
+      </strong>
+    </div>
+  );
 }
 
 function media(lista: number[]): number {
@@ -970,20 +1041,57 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
     [jogos]
   );
 
-  const calculo = useMemo(() => {
-    const qtdRep = maxColuna(repescagem);
-    const qtdFin = maxColuna(finais);
+  const podio = useMemo(() => {
+    const grupoUnico = ehGrupoUnico(jogos, duplas);
+    const listaFinal = finais.length ? finais : principal;
+    const ultimoFinal = ultimoJogoFinalizadoDaUltimaColuna(listaFinal);
+    const ultimoRepescagem = ultimoJogoFinalizadoDaUltimaColuna(repescagem);
 
-    const repWidth = larguraColunas(qtdRep);
-    const finalWidth = larguraColunas(qtdFin);
+    let campeao = texto(torneio?.campeao_nome);
+    let vice = texto(torneio?.vice_nome);
+
+    if (!campeao && ultimoFinal) {
+      campeao = texto(ultimoFinal.vencedor_nome);
+
+      const dupla1 = nomeLadoResultado(ultimoFinal, 1, duplas);
+      const dupla2 = nomeLadoResultado(ultimoFinal, 2, duplas);
+
+      vice = normalizar(campeao) === normalizar(dupla1) ? dupla2 : dupla1;
+    }
+
+    return {
+      grupoUnico,
+      campeao: campeao || "A definir",
+      vice: vice || "A definir",
+      terceiro: texto(torneio?.terceiro_nome) || "A definir",
+      campeaoRepescagem:
+        texto(torneio?.campeao_repescagem_nome) ||
+        texto(ultimoRepescagem?.vencedor_nome) ||
+        "A definir",
+    };
+  }, [jogos, duplas, torneio, finais, principal, repescagem]);
+
+  const calculo = useMemo(() => {
+    const qtdRep = repescagem.length ? maxColuna(repescagem) : 0;
+    const qtdFin = finais.length ? maxColuna(finais) : 0;
+
+    const repGamesWidth = qtdRep ? larguraColunas(qtdRep) : 0;
+    const finalGamesWidth = qtdFin ? larguraColunas(qtdFin) : 0;
+
+    // Mantém os resultados nas extremidades, como no painel administrativo:
+    // [3º lugar / campeão repescagem] [jogos] [principal] [jogos] [campeão / vice]
+    const repGamesLeft = RESULT_W + (repGamesWidth ? RESULT_GAP : 0);
+    const repWidth = RESULT_W + (repGamesWidth ? RESULT_GAP + repGamesWidth : 0);
     const mainLeft = repWidth + GAP_SECAO;
     const finalLeft = mainLeft + CARD_W + GAP_SECAO;
+    const finalWidth = finalGamesWidth + (finalGamesWidth ? RESULT_GAP : 0) + RESULT_W;
+    const rightResultLeft = finalLeft + finalGamesWidth + (finalGamesWidth ? RESULT_GAP : 0);
     const totalWidth = repWidth + GAP_SECAO + CARD_W + GAP_SECAO + finalWidth;
 
     const temGrupos = ehSeisDuplasComGrupos(jogos, duplas, torneio);
     const principalCalc = calcularPrincipal(principal, temGrupos, mainLeft);
 
-    const repCalc = calcularLateral(repescagem, principalCalc.centros, 0, "repescagem");
+    const repCalc = calcularLateral(repescagem, principalCalc.centros, repGamesLeft, "repescagem");
     const finalCalc = calcularLateral(finais, principalCalc.centros, finalLeft, "final");
 
     const todosCards = [
@@ -1012,10 +1120,16 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
       top: item.top + shift + BOARD_TOP,
     }));
 
+    const centroPrincipal = principalCalc.centros.length
+      ? media(principalCalc.centros)
+      : principalCalc.altura / 2;
+    const resultadoCenterY = centroPrincipal + shift + BOARD_TOP;
+
     const maxBottom = Math.max(
       520,
       ...cardsCorrigidos.map((c) => c.top + CARD_H),
-      ...titulosCorrigidos.map((t) => t.top + GROUP_TITLE_H)
+      ...titulosCorrigidos.map((t) => t.top + GROUP_TITLE_H),
+      resultadoCenterY + 100
     );
 
     return {
@@ -1024,6 +1138,8 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
       mainLeft,
       finalLeft,
       finalWidth,
+      rightResultLeft,
+      resultadoCenterY,
       cards: cardsCorrigidos,
       groupTitles: titulosCorrigidos,
       height: maxBottom + 42,
@@ -1106,6 +1222,37 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
           style={{ left: calculo.finalLeft, width: calculo.finalWidth }}
         >
           {calculo.titulos.direita}
+        </div>
+
+        <div
+          className="absolute z-[4] flex -translate-y-1/2 flex-col gap-3"
+          style={{
+            left: 0,
+            top: calculo.resultadoCenterY,
+            width: RESULT_W,
+          }}
+        >
+          {podio.grupoUnico ? (
+            <ResultadoDestaque titulo="3º Lugar" nome={podio.terceiro} destaque="terceiro" />
+          ) : (
+            <ResultadoDestaque
+              titulo="Campeão Repescagem"
+              nome={podio.campeaoRepescagem}
+              destaque="repescagem"
+            />
+          )}
+        </div>
+
+        <div
+          className="absolute z-[4] flex -translate-y-1/2 flex-col gap-3"
+          style={{
+            left: calculo.rightResultLeft,
+            top: calculo.resultadoCenterY,
+            width: RESULT_W,
+          }}
+        >
+          <ResultadoDestaque titulo="Campeão" nome={podio.campeao} />
+          <ResultadoDestaque titulo="Vice-campeão" nome={podio.vice} />
         </div>
 
         {calculo.groupTitles.map((titulo) => (
