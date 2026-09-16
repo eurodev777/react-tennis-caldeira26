@@ -58,7 +58,7 @@ export const EXHIBITORS = [
     name: "Açaí Everest",
     logoText: acai,
     instagram: "acaieverest",
-    instagramUrl: "https://instagram.com/acaieverest",
+    instagramUrl: "acaieverest",
   },
 
   {
@@ -74,7 +74,7 @@ export const EXHIBITORS = [
     name: "Kátia Mayumi",
     logoText: katia,
     instagram: "katia_yamamotokmy",
-    instagramUrl: "https://instagram.com/katia_yamamotokmy",
+    instagramUrl: "katia_yamamotokmy",
   },
 
   {
@@ -90,7 +90,7 @@ export const EXHIBITORS = [
     name: "TG Comfort",
     logoText: comfort,
     instagram: "tgcomfort",
-    instagramUrl: "https://instagram.com/tgcomfort",
+    instagramUrl: "tgcomfort",
   },
 
   {
@@ -145,7 +145,7 @@ export const BIRUGUMI_SPONSORS = [
     name: "Mr. Jeff - Chopp Brahma Express",
     logoText: brahma,
     instagram: "mrjeffeventos",
-    instagramUrl: "https://instagram.com/mrjeffeventos",
+    instagramUrl: "mrjeffeventos",
   },
 
   {
@@ -153,7 +153,7 @@ export const BIRUGUMI_SPONSORS = [
     name: "Dai Alimentos",
     logoText: dai,
     instagram: "daialimentos",
-    instagramUrl: "https://instagram.com/daialimentos",
+    instagramUrl: "daialimentos",
   },
 
   {
@@ -161,7 +161,7 @@ export const BIRUGUMI_SPONSORS = [
     name: "Shiki",
     logoText: shiki,
     instagram: "shikifoodservice",
-    instagramUrl: "https://instagram.com/shikifoodservice",
+    instagramUrl: "shikifoodservice",
   },
 ];
 
@@ -173,7 +173,7 @@ export const SPONSORS = [
     logoText: mcamicado,
     tagline: "TRADIÇÃO EM PREÇOS BAIXOS",
     siteUrl: "https://www.mcamicado.com.br",
-    instagram: "mcamicado",
+    instagram: "mcamicado.oficial",
     whatsapp: "+551133127676",
     phone: "(11) 3312-7676",
     description:
@@ -202,7 +202,7 @@ export const SPONSORS = [
     logoText: unica,
     tagline: "há mais de 20 anos protegendo sua família e seu patrimônio",
     siteUrl: "https://www.grupounica.com.br",
-    instagram: "grupounicaseguranca",
+    instagram: "grupo_unica",
     facebook: "grupounica_sorocaba",
     description:
       "O Grupo Única conquistou seu espaço através da prestação de serviços de qualidade voltados integralmente à satisfação de seus clientes. Atuamos nas áreas de Segurança Patrimonial, Segurança Eletrônica e Facilities.",
@@ -216,7 +216,7 @@ export const SPONSORS = [
     logoText: ito,
     tagline: "MATERIAIS PARA CONSTRUÇÃO",
     siteUrl: "https://www.itomat.com.br",
-    instagram: "itomateriais",
+    instagram: "ito.materiaisconstrucao",
     whatsapp: "+5511996192659",
     phone: "(15) 3231-6151",
     description:
@@ -233,12 +233,14 @@ export const SUPPORTERS = [
     logoType: "text",
     logoText: sicredi,
     siteUrl: "https://www.sicredi.com.br",
+    instagram: "sicredi",
   },
   {
     id: "bwm",
     name: "BWM",
     logoType: "text",
     logoText: bwm,
+    instagram: "bwmimobiliaria",
     description: "RESIDENCIAIS - COMERCIAIS - INVESTIMENTOS - LANÇAMENTOS",
   },
   {
@@ -266,6 +268,7 @@ export const SUPPORTERS = [
     name: "Jadlog",
     logoType: "text",
     logoText: jadlog,
+    instagram: "jadlogsorocaba",
     whatsapp: "+551532333280",
     phone: "(15) 3233-3280",
     description: "tat.sor@jadlog.com.br",
@@ -286,7 +289,7 @@ export const SUPPORTERS = [
     logoType: "text",
     logoText: ideal,
     tagline: "FONE: (15) 3219-3500",
-    instagram: "@idealsegurossorocaba",
+    instagram: "idealsegurossorocaba",
     whatsapp: "+5515998414953",
     phone: "(15) 3219-3500",
     description:
@@ -297,7 +300,7 @@ export const SUPPORTERS = [
     name: "Grupo M0 Ambiental",
     logoType: "text",
     logoText: h20,
-    instagram: "@grupoh2oambiental2",
+    instagram: "grupoh2oambiental2",
     whatsapp: "+5515998609777",
     description: "a solução completa para o seu projeto!",
   },
@@ -318,6 +321,7 @@ export const SUPPORTERS = [
     logoType: "text",
     logoText: shibata,
     tagline: "quitanda",
+    instagram: "quitanda_shibata",
     facebook: "quitandasantarosalia",
     whatsapp: "+5515992014621",
     phone: "(15) 3231-8214",
@@ -329,6 +333,7 @@ export const SUPPORTERS = [
     logoType: "text",
     logoText: prosteel,
     tagline: "Estruturas Metálicas e Calderaria",
+    instagram: "prosteelsorocaba",
     description: "prosteelsorocaba@bol.com.br",
   },
   {
@@ -336,7 +341,7 @@ export const SUPPORTERS = [
     name: "O Verdadeiro pastel Tammy",
     logoType: "text",
     logoText: tammy,
-    siteUrl: "linktr.ee/tammypastelaria",
+    siteUrl: "https://linktr.ee/tammypastelaria",
     instagram: "tammypastelaria",
     description: "O Verdadeiro Pastel Desde 1977",
   },
@@ -354,6 +359,7 @@ export const SUPPORTERS = [
     name: "Classic Pan",
     logoType: "text",
     logoText: classicpan,
+    instagram: "classicpansorocaba",
     description: "Sinta o gosto dos clássicos - ClassicPan na 105,9 FM.",
   },
   {
@@ -373,6 +379,7 @@ export const SUPPORTERS = [
     logoType: "text",
     logoText: mira,
     tagline: "Manutenções e Vistorias Imobiliárias",
+    instagram: "julioalvesmira",
     whatsapp: "+5515997784221",
     description: "QUALIDADE E PREÇO JUSTO",
   },
@@ -392,7 +399,7 @@ export const SUPPORTERS = [
     logoText: sothink,
     tagline: "agência de marketing",
     siteUrl: "https://sothink.com.br",
-    instagram: "sothink.mkt",
+    instagram: "stk.marketing",
     facebook: "profile.php?id=61562262162613",
     whatsapp: "+5515997442108",
     phone: "(15) 99744-2108",
