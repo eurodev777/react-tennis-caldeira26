@@ -22,14 +22,16 @@ export interface Sponsor {
 export interface Supporter {
   id: string;
   name: string;
-  logoType: 'text' | 'svg' | 'image';
-  logoText?: string;
-  tagline?: string;
-  siteUrl: string;
-  instagram: string;
-  whatsapp: string;
-  phone: string;
-  description: string;
+  logoText: string;
+
+  instagram?: string;
+  instagramUrl?: string;
+
+  whatsapp?: string;
+  whatsappUrl?: string;
+
+  website?: string;
+  description?: string;
 }
 
 export interface Director {

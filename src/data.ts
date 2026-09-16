@@ -56,52 +56,77 @@ export const EXHIBITORS = [
   {
     id: "exp-acai",
     name: "Açaí Everest",
-    logoText: acai, // Substitua pelo caminho correto da sua imagem
+    logoText: acai,
+    instagram: "acaieverest",
+    instagramUrl: "https://instagram.com/acaieverest",
   },
+
   {
     id: "exp-bea",
-    name: "Bea Activewear",
+    name: "Bea Active Wear",
     logoText: bea,
+    whatsapp: "(11) 99404-0139",
+    whatsappUrl: "https://wa.me/5511994040139",
   },
+
   {
     id: "exp-katia",
     name: "Kátia Mayumi",
     logoText: katia,
+    instagram: "katia_yamamotokmy",
+    instagramUrl: "https://instagram.com/katia_yamamotokmy",
   },
+
   {
     id: "exp-violet",
     name: "Violet Doces",
     logoText: violet,
+    whatsapp: "(15) 99836-0253",
+    whatsappUrl: "https://wa.me/5515998360253",
   },
+
   {
     id: "exp-comfort",
     name: "TG Comfort",
     logoText: comfort,
+    instagram: "tgcomfort",
+    instagramUrl: "https://instagram.com/tgcomfort",
   },
+
   {
     id: "exp-alice",
-    name: "Alice Furuno",
+    name: "Alice",
     logoText: alice,
+    whatsapp: "(11) 99882-9990",
+    whatsappUrl: "https://wa.me/5511998829990",
   },
+
   {
     id: "exp-brilho",
     name: "Brilho Raro",
     logoText: brilho,
+    instagram: "brilhoraro.semijoiasacessorios",
+    instagramUrl: "brilhoraro.semijoiasacessorios",
   },
+
   {
     id: "exp-picole-joao",
     name: "Picolé João",
     logoText: picole,
   },
+
   {
     id: "exp-cozinha-italiana",
     name: "Cozinha Italiana",
     logoText: italiana,
   },
+
   {
     id: "exp-manaki",
-    name: "Manaki Japanese Food",
+    name: "Manakai Japanese Food",
     logoText: manaki,
+    whatsapp: "(15) 99604-4034",
+    whatsappUrl: "5515996044034",
   },
 ];
 
@@ -111,21 +136,32 @@ export const BIRUGUMI_SPONSORS = [
     id: "biru-longway",
     name: "Longway",
     logoText: longway,
+    instagram: "longwayalimentos",
+    instagramUrl: "longwayalimentos",
   },
+
   {
     id: "biru-brahma",
     name: "Mr. Jeff - Chopp Brahma Express",
     logoText: brahma,
+    instagram: "mrjeffeventos",
+    instagramUrl: "https://instagram.com/mrjeffeventos",
   },
+
   {
     id: "biru-dai",
     name: "Dai Alimentos",
     logoText: dai,
+    instagram: "daialimentos",
+    instagramUrl: "https://instagram.com/daialimentos",
   },
+
   {
     id: "biru-shiki",
     name: "Shiki",
     logoText: shiki,
+    instagram: "shikifoodservice",
+    instagramUrl: "https://instagram.com/shikifoodservice",
   },
 ];
 
