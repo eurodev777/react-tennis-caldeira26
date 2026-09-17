@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-const API_URL = "https://sothink.com.br/centenario26/api/v2/nipponimages"; // MUDE AQUI
+const API_URL = "https://sothink.com.br/centenario26/api/v2/nipponimages";
+const BASE_URL = "https://sothink.com.br/centenario26/";
 
 interface ImagemGaleria {
   id: number;
-  imagem: string; // ex: uploads/12345.jpg
+  imagem: string;
+  descricao?: string | null;
+}
+
+function textoResumo(texto?: string | null, limite = 120) {
+  const descricao = texto?.trim();
+
+  if (!descricao) return "";
+
+  if (descricao.length <= limite) return descricao;
+
+  return `${descricao.slice(0, limite).trim()}...`;
 }
 
 export default function GalleryFeed() {
@@ -16,8 +28,9 @@ export default function GalleryFeed() {
     fetch(`${API_URL}/listar`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.sucesso) setImagens(data.dados);
-      });
+        if (data.sucesso) setImagens(data.dados || []);
+      })
+      .catch((error) => console.error(error));
   }, []);
 
   const abrirModal = (index: number) => {
@@ -35,61 +48,160 @@ export default function GalleryFeed() {
     setSlideAtual((prev) => (prev === 0 ? imagens.length - 1 : prev - 1));
   };
 
+  const imagemAtual = imagens[slideAtual];
+
   return (
-    <div className="w-full max-w-5xl mx-auto p-4">
-      {/* Feed 4 Colunas - Formato Vertical */}
-      <div className="grid grid-cols-4 gap-2 sm:gap-4">
-        {imagens.map((item, index) => (
-          <div
-            key={item.id}
-            onClick={() => abrirModal(index)}
-            className="cursor-pointer overflow-hidden rounded-xl aspect-[9/16] bg-gray-200 hover:opacity-90 transition-opacity"
-          >
-            <img
-              src={`http://sothink.com.br/centenario26/${item.imagem}`}
-              alt="Galeria"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ))}
+    <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mb-8 text-center">
+        <span className="mb-2 inline-block text-xs font-bold uppercase tracking-[0.22em] text-[#c93b2b]">
+          Galeria
+        </span>
+
+        <h2 className="text-2xl font-bold uppercase text-stone-950 md:text-3xl">
+          Fotos do Torneio
+        </h2>
+
+        <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">
+          Registros oficiais do torneio de tênis Nippon Sorocaba.
+        </p>
       </div>
 
-      {/* Modal Tela Inteira */}
-      {modalAberto && imagens.length > 0 && (
+      {/* Mobile: 1 por linha | Tablet: 2 | Desktop: 3 ou 4 */}
+      <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {imagens.map((item, index) => {
+          const descricao = item.descricao?.trim() || "";
+          const temDescricaoGrande = descricao.length > 120;
+
+          return (
+            <article
+              key={item.id}
+              className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+            >
+              <button
+                type="button"
+                onClick={() => abrirModal(index)}
+                className="block w-full shrink-0 overflow-hidden bg-stone-100"
+              >
+                <img
+                  src={`${BASE_URL}${item.imagem}`}
+                  alt={descricao || "Foto da galeria do torneio"}
+                  className="aspect-[4/5] w-full object-cover transition duration-300 hover:scale-[1.03]"
+                  loading="lazy"
+                />
+              </button>
+
+              <div className="flex min-h-[118px] flex-1 flex-col border-t border-stone-100 px-4 py-3">
+                {descricao ? (
+                  <>
+                    <p className="line-clamp-3 break-words text-sm leading-relaxed text-stone-700">
+                      {textoResumo(descricao)}
+                    </p>
+
+                    <div className="mt-auto pt-3">
+                      <button
+                        type="button"
+                        onClick={() => abrirModal(index)}
+                        className="text-xs font-bold uppercase tracking-wide text-[#c93b2b] hover:opacity-80"
+                      >
+                        {temDescricaoGrande ? "Ver descrição completa" : "Ampliar foto"}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="mt-auto pt-3">
+                    <button
+                      type="button"
+                      onClick={() => abrirModal(index)}
+                      className="text-xs font-bold uppercase tracking-wide text-[#c93b2b] hover:opacity-80"
+                    >
+                      Ampliar foto
+                    </button>
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })}
+
+        {imagens.length === 0 && (
+          <p className="col-span-full py-12 text-center text-gray-500">
+            Nenhuma imagem na galeria ainda.
+          </p>
+        )}
+      </div>
+
+      {modalAberto && imagemAtual && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
           onClick={() => setModalAberto(false)}
         >
-          {/* Botão Fechar */}
-          <button className="absolute top-4 right-4 text-white text-4xl font-bold z-50 hover:text-gray-300">
+          <button
+            type="button"
+            onClick={() => setModalAberto(false)}
+            className="absolute right-4 top-4 z-50 text-4xl font-bold text-white hover:text-gray-300"
+            aria-label="Fechar"
+          >
             &times;
           </button>
 
-          {/* Botão Anterior */}
-          <button
-            onClick={slideAnterior}
-            className="absolute left-4 md:left-8 text-white text-5xl font-bold hover:text-gray-300 z-50 p-4"
-          >
-            &#10094;
-          </button>
+          {imagens.length > 1 && (
+            <button
+              type="button"
+              onClick={slideAnterior}
+              className="absolute left-2 z-50 p-3 text-4xl font-bold text-white hover:text-gray-300 md:left-8 md:text-5xl"
+              aria-label="Imagem anterior"
+            >
+              &#10094;
+            </button>
+          )}
 
-          {/* Imagem do Slide */}
-          <img
-            src={`http://sothink.com.br/centenario26/${imagens[slideAtual].imagem}`}
-            alt="Slide"
-            className="max-h-[90vh] max-w-[90vw] object-contain rounded-md"
-            onClick={(e) => e.stopPropagation()} // Impede que o clique na imagem feche o modal
-          />
-
-          {/* Botão Próximo */}
-          <button
-            onClick={proximoSlide}
-            className="absolute right-4 md:right-8 text-white text-5xl font-bold hover:text-gray-300 z-50 p-4"
+          <div
+            className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            &#10095;
-          </button>
+            <div className="grid max-h-[92vh] md:grid-cols-[1fr_360px]">
+              <div className="flex min-h-[260px] items-center justify-center bg-black">
+                <img
+                  src={`${BASE_URL}${imagemAtual.imagem}`}
+                  alt={imagemAtual.descricao || "Foto ampliada do torneio"}
+                  className="max-h-[92vh] w-full object-contain"
+                />
+              </div>
+
+              <aside className="max-h-[92vh] overflow-y-auto border-t border-stone-200 p-5 md:border-l md:border-t-0">
+                <span className="mb-2 inline-block text-[11px] font-black uppercase tracking-[0.2em] text-[#c93b2b]">
+                  Foto do torneio
+                </span>
+
+                <h3 className="mb-4 text-lg font-black text-stone-950">
+                  Nippon Sorocaba
+                </h3>
+
+                {imagemAtual.descricao?.trim() ? (
+                  <p className="whitespace-pre-line break-words text-sm leading-relaxed text-stone-800">
+                    {imagemAtual.descricao}
+                  </p>
+                ) : (
+                  <p className="text-sm text-stone-400">
+                    Sem descrição cadastrada.
+                  </p>
+                )}
+              </aside>
+            </div>
+          </div>
+
+          {imagens.length > 1 && (
+            <button
+              type="button"
+              onClick={proximoSlide}
+              className="absolute right-2 z-50 p-3 text-4xl font-bold text-white hover:text-gray-300 md:right-8 md:text-5xl"
+              aria-label="Próxima imagem"
+            >
+              &#10095;
+            </button>
+          )}
         </div>
       )}
-    </div>
+    </section>
   );
 }
