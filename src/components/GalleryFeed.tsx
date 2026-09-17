@@ -9,7 +9,7 @@ interface ImagemGaleria {
   descricao?: string | null;
 }
 
-function textoResumo(texto?: string | null, limite = 120) {
+function cortarTexto(texto?: string | null, limite = 95) {
   const descricao = texto?.trim();
 
   if (!descricao) return "";
@@ -67,20 +67,20 @@ export default function GalleryFeed() {
       </div>
 
       {/* Mobile: 1 por linha | Tablet: 2 | Desktop: 3 ou 4 */}
-      <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {imagens.map((item, index) => {
           const descricao = item.descricao?.trim() || "";
-          const temDescricaoGrande = descricao.length > 120;
+          const descricaoGrande = descricao.length > 95;
 
           return (
             <article
               key={item.id}
-              className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
             >
               <button
                 type="button"
                 onClick={() => abrirModal(index)}
-                className="block w-full shrink-0 overflow-hidden bg-stone-100"
+                className="block w-full overflow-hidden bg-stone-100"
               >
                 <img
                   src={`${BASE_URL}${item.imagem}`}
@@ -90,35 +90,29 @@ export default function GalleryFeed() {
                 />
               </button>
 
-              <div className="flex min-h-[118px] flex-1 flex-col border-t border-stone-100 px-4 py-3">
-                {descricao ? (
-                  <>
-                    <p className="line-clamp-3 break-words text-sm leading-relaxed text-stone-700">
-                      {textoResumo(descricao)}
-                    </p>
+              {descricao ? (
+                <div className="border-t border-stone-100 px-4 py-3">
+                  <p
+                    className="break-words text-sm leading-relaxed text-stone-700"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {cortarTexto(descricao)}
+                  </p>
 
-                    <div className="mt-auto pt-3">
-                      <button
-                        type="button"
-                        onClick={() => abrirModal(index)}
-                        className="text-xs font-bold uppercase tracking-wide text-[#c93b2b] hover:opacity-80"
-                      >
-                        {temDescricaoGrande ? "Ver descrição completa" : "Ampliar foto"}
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="mt-auto pt-3">
-                    <button
-                      type="button"
-                      onClick={() => abrirModal(index)}
-                      className="text-xs font-bold uppercase tracking-wide text-[#c93b2b] hover:opacity-80"
-                    >
-                      Ampliar foto
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => abrirModal(index)}
+                    className="mt-2 text-xs font-bold uppercase tracking-wide text-[#c93b2b] hover:opacity-80"
+                  >
+                    {descricaoGrande ? "Ver mais" : "Ampliar"}
+                  </button>
+                </div>
+              ) : null}
             </article>
           );
         })}
@@ -159,8 +153,8 @@ export default function GalleryFeed() {
             className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="grid max-h-[92vh] md:grid-cols-[1fr_360px]">
-              <div className="flex min-h-[260px] items-center justify-center bg-black">
+            <div className="grid max-h-[92vh] md:grid-cols-[1fr_340px]">
+              <div className="flex items-center justify-center bg-black">
                 <img
                   src={`${BASE_URL}${imagemAtual.imagem}`}
                   alt={imagemAtual.descricao || "Foto ampliada do torneio"}
