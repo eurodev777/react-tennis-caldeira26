@@ -41,6 +41,7 @@ import comfort from "./assets/expositores/comfort.png";
 import alice from "./assets/expositores/alice.png";
 import brilho from "./assets/expositores/brilho.jpg";
 import longway from "./assets/expositores/longway.png";
+import ishao from "./assets/expositores/ishao.jpeg";
 import brahma from "./assets/expositores/brahma.png";
 import picole from "./assets/expositores/picole-joao.jpeg";
 import shiki from "./assets/expositores/shiki.png";
@@ -162,6 +163,13 @@ export const BIRUGUMI_SPONSORS = [
     logoText: shiki,
     instagram: "shikifoodservice",
     instagramUrl: "shikifoodservice",
+  },
+  {
+    id: "biru-ishao",
+    name: "Ishao Hortaliças",
+    logoText: ishao,
+    instagram: "",
+    instagramUrl: "",
   },
 ];
 
