@@ -1097,14 +1097,23 @@ function ChaveVisual({ detalhes }: { detalhes: DetalhesChave }) {
 
   const podio = useMemo(() => {
     const grupoUnico = ehGrupoUnico(jogos, duplas);
-    const listaFinal = finais.length ? finais : principal;
+
+    /*
+     * Grupo único, como a 120A, NÃO tem jogo de final.
+     * Então campeão/vice/3º lugar devem vir somente do pódio definido no painel.
+     * Antes o código pegava o último jogo finalizado da primeira fase e tratava
+     * como se fosse final, por isso aparecia campeão e vice mesmo estando "A definir".
+     */
+    const listaFinal = grupoUnico ? [] : finais.length ? finais : principal;
     const ultimoFinal = ultimoJogoFinalizadoDaUltimaColuna(listaFinal);
-    const ultimoRepescagem = ultimoJogoFinalizadoDaUltimaColuna(repescagem);
+    const ultimoRepescagem = grupoUnico
+      ? null
+      : ultimoJogoFinalizadoDaUltimaColuna(repescagem);
 
     let campeao = texto(torneio?.campeao_nome);
     let vice = texto(torneio?.vice_nome);
 
-    if (!campeao && ultimoFinal) {
+    if (!grupoUnico && !campeao && ultimoFinal) {
       campeao = texto(ultimoFinal.vencedor_nome);
 
       const dupla1 = nomeLadoResultado(ultimoFinal, 1, duplas);
